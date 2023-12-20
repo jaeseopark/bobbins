@@ -1,0 +1,40 @@
+version: "3"
+services:
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx/templates/dev.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./mnt/data:/data:ro
+    ports:
+      - "32933:80"
+    depends_on:
+      - "ui"
+      - "api"
+    environment:
+      TZ: America/Denver
+  ui:
+    image: node:20
+    working_dir: /app
+    command: >
+      sh -c "yarn install &&
+             yarn start-port80"
+    volumes:
+      - ./ui:/app
+    environment:
+      TZ: America/Denver
+  api:
+    image: python:3.12-slim
+    working_dir: /app
+    stop_signal: SIGINT # https://github.com/docker/compose/issues/4199#issuecomment-426109482
+    command: > # The use of venv helps with the container init times, but can cause occasional caching issues; purge the folder as needed.
+      bash -c "python -m venv docker-venv &&
+               source docker-venv/bin/activate &&
+               pip install -r requirements.txt &&
+               pip freeze > docker-pip-freeze.txt &&
+               python main.py"
+    volumes:
+      - ./api:/app
+      - ./mnt/data:/data
+      - ./mnt/logs:/var/log/crgw-api
+    environment:
+      TZ: America/Denver
