@@ -10,7 +10,7 @@ export const addProduct = (p: Product) => apiclient.addProduct(p).then(added => 
   sigProducts.value = [...sigProducts.value, added];
   return added;
 });
-export const updateProduct = async (updated: Product) => {
+export const updateProduct = async (p: Product) => apiclient.updateProduct(p).then((updated) => {
   sigProducts.value = sigProducts.value.reduce((acc, next) => {
     if (next.id === updated.id) {
       acc.push(updated);
@@ -19,7 +19,8 @@ export const updateProduct = async (updated: Product) => {
     }
     return acc;
   }, [] as Product[]);
-}
+  return updated;
+})
 
 apiclient.getProducts().then(products => {
   sigProducts.value = products;

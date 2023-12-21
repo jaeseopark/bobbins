@@ -57,7 +57,7 @@ class SqliteDatabase(Database):
             stmt = "UPDATE products SET data = :data WHERE id = :id"
             params = dict(
                 id=p["id"],
-                data=p
+                data=json.dumps(p)
             )
             conn.execute(stmt, params)
-        raise NotImplementedError
+        return p

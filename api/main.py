@@ -1,5 +1,5 @@
-from typing import Any, Dict, List
-from fastapi import FastAPI
+from typing import Annotated, Any, Dict, List
+from fastapi import FastAPI, Path
 from starlette.responses import JSONResponse
 from pydantic import BaseModel
 from bobbins import SqliteDatabase
@@ -41,8 +41,8 @@ def add_product(payload: Dict[Any, Any]):
     return dict(product=added)
 
 
-@fastapi_app.patch("products/{product_id}")
-def update_product(product_id: str, payload: Dict[Any, Any]):
+@fastapi_app.put("/products/{product_id}")
+def update_product(product_id: Annotated[str, Path(title="The ID of the product to update")], payload: Dict[Any, Any] = None):
     payload.update(dict(id=product_id))
     updated = db.update_product(payload)
     return dict(product=updated)

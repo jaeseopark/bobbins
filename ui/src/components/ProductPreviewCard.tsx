@@ -119,7 +119,7 @@ const ProductPreviewCard = ({ product }: { product: Product }) => {
                 window.navigator.clipboard.writeText(desc);
                 toast({
                   title: product.name,
-                  description: "Copied to clipboard.",
+                  description: "Description copied to clipboard.",
                   status: "success",
                   duration: 1500,
                   isClosable: true,
