@@ -1,14 +1,23 @@
 import ProductGridView from "./components/ProductGridView";
-import { ChakraProvider } from "@chakra-ui/react";
+import { ChakraProvider, Spinner } from "@chakra-ui/react";
 import ProductListToolbar from "./components/ProductListToolbar";
+import { sigIsLoading } from "./state";
 
-export function App() {
+const AppLayout = () => {
+  if (sigIsLoading.value) {
+    return <Spinner />;
+  }
+
   return (
     <>
-      <ChakraProvider>
-        <ProductListToolbar />
-        <ProductGridView />
-      </ChakraProvider>
+      <ProductListToolbar />
+      <ProductGridView />
     </>
   );
-}
+};
+
+export const App = () => (
+  <ChakraProvider>
+    <AppLayout />
+  </ChakraProvider>
+);

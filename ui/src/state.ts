@@ -2,12 +2,14 @@ import { signal } from "@preact/signals";
 import { Product } from "./types";
 import { v4 as uuidv4 } from "uuid";
 import getRandomName from "node-random-name";
+import apiclient from "./apiclient"
 
+export const sigIsLoading = signal(true);
 export const sigProducts = signal<Product[]>([]);
-export const addProduct = (p: Product) => {
-  sigProducts.value = [...sigProducts.value, p];
-  return p;
-};
+export const addProduct = (p: Product) => apiclient.addProduct(p).then(added => {
+  sigProducts.value = [...sigProducts.value, added];
+  return added;
+});
 export const updateProduct = async (updated: Product) => {
   sigProducts.value = sigProducts.value.reduce((acc, next) => {
     if (next.id === updated.id) {
@@ -18,6 +20,11 @@ export const updateProduct = async (updated: Product) => {
     return acc;
   }, [] as Product[]);
 }
+
+apiclient.getProducts().then(products => {
+  sigProducts.value = products;
+  sigIsLoading.value = false;
+})
 
 /**
  * All code below this line is only for local dev/test purposes.
@@ -39,9 +46,5 @@ const getTestProduct = (): Product => ({
   },
   tutorialLink: "https://www.youtube.com/watch?v=R_nu4COtBv4"
 });
-
-export const reset = () => {
-  sigProducts.value = Array(5).fill(0).map(getTestProduct);
-};
 
 export const addTestProduct = () => addProduct(getTestProduct());

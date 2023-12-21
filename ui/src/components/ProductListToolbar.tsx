@@ -1,11 +1,10 @@
 import { Button } from "@chakra-ui/button";
-import { addTestProduct, reset } from "../state";
+import { addTestProduct } from "../state";
 
 const ProductListToolbar = () => {
   return (
     <div>
       <Button onClick={addTestProduct}>Add</Button>
-      <Button onClick={reset}>Reset</Button>
     </div>
   );
 };
