@@ -1,3 +1,5 @@
+export type Material = { name: string; notes?: string; url?: string };
+
 export type Product = {
   id: string;
   name: string;
@@ -7,11 +9,16 @@ export type Product = {
   duration: number; // minutes
   files?: string[];
   thumbnails?: string[];
-  materials?: [{ name: string; notes?: string; url?: string }];
+  materials?: Material[];
   sizes: {
-    [key: string]: number[]
+    [key: string]: number[];
   };
   tutorialLink: string;
+  containsNotches: boolean;
+  numMissingSeamAllowances: number;
+  seamAllowance: number;
+  topStitch: number;
+  basteStitch: number;
 };
 
 export type Inch = {

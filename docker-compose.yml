@@ -5,6 +5,7 @@ services:
     volumes:
       - ./nginx/templates/dev.conf.template:/etc/nginx/templates/default.conf.template:ro
       - ./mnt/data/products:/data:ro
+      - ./templates:/templates:ro
     ports:
       - "32933:80"
     depends_on:
@@ -30,6 +31,7 @@ services:
     volumes:
       - ./api:/app/api
       - ./mnt/data:/data
+      - ./templates:/app/templates:ro
       - ./mnt/logs:/var/log/bobbins/api
     environment:
       TZ: America/Denver

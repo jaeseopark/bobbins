@@ -39,7 +39,7 @@ const getDescription = (product: Product) => {
       `💜 ${sizeKeys.length} sizes provided`,
       ...Object.entries(product.sizes).map(
         ([sizeAlias, dims]) =>
-          `💜 - ${capitalizeFirstLetter(sizeAlias)}: ${getDimensionsAsString(dims, cmToInchString)}`
+          `💜 - ${capitalizeFirstLetter(sizeAlias)}: ${getDimensionsAsString(dims, cmToInchString)}`,
       ),
     ];
   };
@@ -89,6 +89,10 @@ const ProductPreviewCard = ({ product }: { product: Product }) => {
     }
   };
 
+  const openUserGuide = () => {
+    window.open(`/api/products/${product.id}/user_guide`, "_blank").focus();
+  };
+
   return (
     <>
       <Card maxW="sm">
@@ -100,7 +104,7 @@ const ProductPreviewCard = ({ product }: { product: Product }) => {
               <IconButton aria-label="Edit this product" icon={<EditIcon />} onClick={openEditorModal} />
               <ButtonGroup spacing="2">{getSocialIcons()}</ButtonGroup>
             </HStack>
-            <Button leftIcon={<DownloadIcon />} variant="solid" colorScheme="blue" size="sm" isDisabled>
+            <Button leftIcon={<DownloadIcon />} onClick={openUserGuide} variant="solid" colorScheme="blue" size="sm">
               User guide
             </Button>
             <Button variant="solid" colorScheme="blue" size="sm" isDisabled>

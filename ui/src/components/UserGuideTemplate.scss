@@ -1,0 +1,118 @@
+.outer-container {
+  border: 2px solid #6f6a68;
+  border-radius: 28px;
+}
+
+.container {
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%236f6a68' stroke-width='4' stroke-dasharray='6%2c 14' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+  border-radius: 24px;
+  margin: 4px;
+  color: #6f6a68;
+  padding: 6px;
+}
+
+.band {
+  background-color: #d9e2f5;
+  color: #8ca7cd;
+  font-family: Kanit;
+  display: grid;
+  align-items: center;
+}
+
+.header {
+  background-image: url("/template-assets/images/sewing-stroll-logo.png");
+  background-repeat: no-repeat;
+  background-position: left 20px top 10px;
+  background-size: 44px;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  height: 64px;
+  padding-left: 76px;
+  font-size: x-large;
+}
+
+.footer {
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
+  height: 64px;
+  font-size: large;
+  padding-left: 20px;
+
+  h2 {
+    margin-right: 1em;
+  }
+}
+
+.content {
+  padding-left: 20px;
+  padding-bottom: 20px;
+  font-size: x-small;
+
+  &.sections {
+    display: flex;
+    flex-direction: column;
+    gap: 4em;
+    margin-top: 4em;
+  }
+
+  .section {
+    .section-header {
+      h2 {
+        font-family: Kanit;
+        font-size: large;
+        margin-bottom: 1em;
+      }
+    }
+
+    .section-body {
+      .grid-item {
+        .icon-and-title {
+          display: flex;
+          align-items: center;
+          margin: 1em 0;
+
+          img {
+            border: 2px solid #f6eceb;
+            border-radius: 100%;
+            background-color: #fdf8f6;
+            width: 36px;
+            height: 36px;
+            padding: 6px;
+          }
+        }
+
+        .title {
+          font-weight: bold;
+          font-size: small;
+          margin: 5px;
+        }
+      }
+    }
+  }
+
+  .materials {
+    .col1 {
+      min-width: 15em;
+    }
+  }
+
+  .video-link-container {
+    width: 100%;
+    display: grid;
+    justify-content: center;
+    font-family: Kanit;
+
+    img.youtube {
+      width: 24px;
+    }
+  }
+}
+
+.contact {
+  img {
+    display: inline;
+    size: 32px;
+    margin-top: 9px;
+    margin-left: 5px;
+  }
+}

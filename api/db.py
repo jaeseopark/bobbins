@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 import json
 import os
-from typing import List
+from typing import List, Optional
 import sqlite3
+
 
 SQL_INIT_SCRIPT = """
 CREATE TABLE products (id TEXT PRIMARY KEY, data TEXT);
@@ -12,6 +13,10 @@ CREATE TABLE products (id TEXT PRIMARY KEY, data TEXT);
 class Database(ABC):
     @abstractmethod
     def get_products(self) -> List[dict]:
+        pass
+
+    @abstractmethod
+    def get_product(self, id: str) -> Optional[List]:
         pass
 
     @abstractmethod
@@ -45,6 +50,12 @@ class SqliteDatabase(Database):
     def get_products(self) -> List[dict]:
         with self.conn as conn:
             return conn.execute("SELECT data FROM products")
+
+    def get_product(self, id: str) -> Optional[List]:
+        with self.conn as conn:
+            stmt = "SELECT data FROM products WHERE id = :id"
+            # TODO: null check before returning
+            return conn.execute(stmt, dict(id=id)).fetchone()
 
     def add_product(self, p: dict) -> dict:
         with self.conn as conn:

@@ -1,8 +1,11 @@
 from typing import Annotated, Any, Dict, List
+from pdf import generate_user_guide
 from fastapi import FastAPI, Path
+from fastapi.responses import FileResponse
 from starlette.responses import JSONResponse
 from pydantic import BaseModel
-from bobbins import SqliteDatabase
+
+from db import SqliteDatabase
 
 
 fastapi_app = FastAPI()
@@ -46,3 +49,15 @@ def update_product(product_id: Annotated[str, Path(title="The ID of the product 
     payload.update(dict(id=product_id))
     updated = db.update_product(payload)
     return dict(product=updated)
+
+
+@fastapi_app.get("/products/{product_id}/user_guide", response_class=FileResponse)
+def get_user_guide(product_id: str):
+    product = db.get_product(product_id)
+
+    if not product_id:
+        return JSONResponse(status_code=400)
+
+    pdf_path = generate_user_guide(product)
+
+    return pdf_path
