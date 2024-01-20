@@ -19,9 +19,23 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { ChatIcon } from "@chakra-ui/icons";
 export type SubmitResponse = "ADDED" | "UPDATED" | "FAILED";
+import apiclient from "../apiclient";
 
 // TODO: support URLs
-const MATERIAL_URL_REGEX = "^([^:]) *: *(.*)$";
+const MATERIAL_URL_REGEX = "^([^:])*:*(.*)$";
+
+const getIntroGenerationPrompt = (p: Product): string => {
+  const sizeCount = Object.keys(p.sizes).length;
+  return [
+    `In 4 joyful sentences, write a product description for a PDF sewing pattern "${p.name}"`,
+    `with the following characteristics: ${p.keywords.join(", ")}.`,
+    "The pattern can be printed on standard US Letter size or A4 paper at home.",
+    `The project comes with a ${p.duration}-minute step-by-step youtube tutorial video.`,
+    sizeCount > 1 && `The pattern comes in ${sizeCount} sizes.`,
+  ]
+    .filter((line) => line)
+    .join(" ");
+};
 
 const sizeMapToString = (sizes: { [key: string]: number[] }) => {
   return Object.entries(sizes)
@@ -30,12 +44,14 @@ const sizeMapToString = (sizes: { [key: string]: number[] }) => {
 };
 
 const materialArrayToString = (materials: Material[]): string =>
-  materials.map(({ name, notes, url }) => {
-    if (url) {
-      return `${name}: ${notes} ${url}`
-    }
-    return `${name}: ${notes}`
-  }).join("\n");
+  materials
+    .map(({ name, notes, url }) => {
+      if (url) {
+        return `${name}: ${notes} ${url}`;
+      }
+      return `${name}: ${notes}`;
+    })
+    .join("\n");
 
 const ProductEditView = ({
   product,
@@ -89,22 +105,20 @@ const ProductEditView = ({
       .map((keyword) => keyword.trim())
       .filter((keyword) => keyword);
 
-  const generateIntro = () => {
-    const keywordsAsArray = getKeywordsAsArray();
-    if (keywordsAsArray.length < 5) {
-      toast({ description: "5 or more keywords required.", duration: 2500, status: "warning" });
-      return;
-    }
-  };
-
   const getSizesAsMap = () =>
     sigSizes.value
       .split("\n")
       .filter((line) => line.trim())
       .map((line) => {
-        const [sizeAlias, dimensionsAsString] = line.split(":");
-        const dimensions = dimensionsAsString.split("x").map((num) => parseFloat(num.trim()));
-        return { sizeAlias, dimensions };
+        line = line.replace("cm", "");
+        let sizeAlias = "regular";
+        let dimStr = line;
+        if (line.includes(":")) {
+          const splitLine = line.split(":");
+          sizeAlias = splitLine[0];
+          dimStr = splitLine[1];
+        }
+        return { sizeAlias, dimensions: dimStr.split("x").map((num) => parseFloat(num.trim())) };
       })
       .reduce((acc, { sizeAlias, dimensions }) => {
         return {
@@ -127,6 +141,69 @@ const ProductEditView = ({
           notes: notes.trim(),
         };
       });
+
+  const getUpdatedProductObject = (): Product => ({
+    ...product!,
+    id: sigId.value,
+    date: sigDate.value,
+    name: sigName.value,
+    tutorialLink: sigTutorialLink.value,
+    duration: sigDuration.value,
+    introduction: sigIntroduction.value,
+    keywords: getKeywordsAsArray(),
+    sizes: getSizesAsMap(),
+    materials: getMaterialsAsArray(),
+    numMissingSeamAllowances: sigNumMissingSeamAllowances.value,
+    seamAllowance: sigSeamAllowance.value,
+    topStitch: sigTopStitch.value,
+    basteStitch: sigBasteStitch.value,
+    containsNotches: sigContainsNotches.value,
+  });
+
+  const generateIntro = () => {
+    let p, question;
+
+    try {
+      p = getUpdatedProductObject();
+      question = getIntroGenerationPrompt(p);
+    } catch (error) {
+      toast({
+        description: "The product information is missing or malformed.",
+        status: "warning",
+        duration: 1500,
+        isClosable: true,
+      });
+      return;
+    }
+
+    toast({
+      description: "Generating...",
+      status: "info",
+      duration: 7500,
+      isClosable: true,
+    });
+
+    apiclient
+      .ask({ question })
+      .then(({ answer }) => {
+        sigIntroduction.value = answer;
+        toast({
+          description: "The introduction has been generated. Don't forget to save!",
+          status: "success",
+          duration: 1500,
+          isClosable: true,
+        });
+      })
+      .catch(() => {
+        toast({
+          title: "Error",
+          description: "Something went wrong.",
+          status: "error",
+          duration: 1500,
+          isClosable: true,
+        });
+      });
+  };
 
   const NumericField = ({ label, sig, ...rest }: { label: string; sig: Signal } & Record<string, any>) => (
     <>
@@ -156,7 +233,7 @@ const ProductEditView = ({
         <FormLabel>Tutorial Link</FormLabel>
         <Input type="text" onChange={getSingularChangeHandler(sigTutorialLink)} value={sigTutorialLink.value} />
         <HStack>
-          <NumericField label="Duration (minutes)" sig={sigDuration} min={0.1} max={2} step={0.1} />
+          <NumericField label="Duration (minutes)" sig={sigDuration} min={1} max={600} step={1} />
           {/* @ts-ignore */}
           <Checkbox isChecked={sigContainsNotches.value} onChange={getCheckboxChangeHandler(sigContainsNotches)}>
             Notches
@@ -178,7 +255,7 @@ const ProductEditView = ({
         <Textarea type="text" onChange={getSingularChangeHandler(sigKeywords)} value={sigKeywords.value} />
         <FormLabel>Introduction</FormLabel>
         <Textarea type="text" onChange={getSingularChangeHandler(sigIntroduction)} value={sigIntroduction.value} />
-        <Button onClick={generateIntro} leftIcon={<ChatIcon />} size="sm" isDisabled>
+        <Button onClick={generateIntro} leftIcon={<ChatIcon />} size="sm">
           Generate w/ ChatGPT
         </Button>
         <FormLabel>Sizes</FormLabel>
@@ -191,32 +268,16 @@ const ProductEditView = ({
           colorScheme="blue"
           mr={3}
           onClick={() => {
-            let newProduct: Product;
+            let updatedProduct: Product;
 
             try {
-              newProduct = {
-                ...product!,
-                id: sigId.value,
-                date: sigDate.value,
-                name: sigName.value,
-                tutorialLink: sigTutorialLink.value,
-                duration: sigDuration.value,
-                introduction: sigIntroduction.value,
-                keywords: getKeywordsAsArray(),
-                sizes: getSizesAsMap(),
-                materials: getMaterialsAsArray(),
-                numMissingSeamAllowances: sigNumMissingSeamAllowances.value,
-                seamAllowance: sigSeamAllowance.value,
-                topStitch: sigTopStitch.value,
-                basteStitch: sigBasteStitch.value,
-                containsNotches: sigContainsNotches.value
-              };
+              updatedProduct = getUpdatedProductObject();
             } catch (e) {
               console.error(e);
               toast({ description: "Invalid input detected", status: "warning", duration: 2000 });
               return;
             }
-            onSubmit(newProduct).then(handleSubmitResponse);
+            onSubmit(updatedProduct).then(handleSubmitResponse);
           }}
         >
           OK

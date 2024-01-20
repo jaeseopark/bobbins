@@ -3,7 +3,7 @@ import { addTestProduct } from "../state";
 
 const ProductListToolbar = () => {
   return (
-    <div>
+    <div className="product-grid-toolbar">
       <Button onClick={addTestProduct}>Add</Button>
     </div>
   );

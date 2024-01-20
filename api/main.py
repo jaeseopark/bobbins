@@ -6,6 +6,7 @@ from starlette.responses import JSONResponse
 from pydantic import BaseModel
 
 from db import SqliteDatabase
+from ai import askgpt
 
 
 fastapi_app = FastAPI()
@@ -61,3 +62,8 @@ def get_user_guide(product_id: str):
     pdf_path = generate_user_guide(product)
 
     return pdf_path
+
+@fastapi_app.post("/ask")
+def ask(payload: Dict[Any, Any]):
+    answer, log = askgpt(payload.get("question"), payload.get("log"))
+    return dict(answer=answer, log=log)

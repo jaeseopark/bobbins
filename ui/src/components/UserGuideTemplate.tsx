@@ -113,12 +113,8 @@ const Materials = () => (
   <table className="materials">
     <tbody>
       <tr>
-        <td className="col1">
-        Exterior Fabric
-        </td>
-        <td>
-          Cotton 100%
-        </td>
+        <td className="col1">Exterior Fabric</td>
+        <td>Cotton 100%</td>
       </tr>
     </tbody>
   </table>

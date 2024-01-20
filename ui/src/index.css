@@ -75,3 +75,9 @@ button:focus-visible {
   /* other formats include: 'woff2', 'truetype, 'opentype',
                             'embedded-opentype', and 'svg' */
 }
+
+.navbar {
+  display: flex;
+  gap: 1em;
+  padding: 1em;
+}

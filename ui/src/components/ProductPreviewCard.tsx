@@ -1,12 +1,10 @@
 import { Product } from "../types";
 import { CopyIcon, DownloadIcon, EditIcon } from "@chakra-ui/icons";
-import { SocialIcon } from "react-social-icons";
 import {
   Card,
   CardBody,
   Image,
   Button,
-  ButtonGroup,
   Heading,
   Stack,
   HStack,
@@ -70,14 +68,6 @@ const ProductPreviewCard = ({ product }: { product: Product }) => {
     return product.thumbnails[0];
   };
 
-  const getSocialIcons = () => {
-    return (
-      <HStack>
-        <SocialIcon url={product?.tutorialLink} />
-      </HStack>
-    );
-  };
-
   const onChange = async (updated: Product): Promise<SubmitResponse> => {
     try {
       await updateProduct(updated);
@@ -102,7 +92,6 @@ const ProductPreviewCard = ({ product }: { product: Product }) => {
             <HStack>
               <Heading size="md">{product.name}</Heading>
               <IconButton aria-label="Edit this product" icon={<EditIcon />} onClick={openEditorModal} />
-              <ButtonGroup spacing="2">{getSocialIcons()}</ButtonGroup>
             </HStack>
             <Button leftIcon={<DownloadIcon />} onClick={openUserGuide} variant="solid" colorScheme="blue" size="sm">
               User guide
