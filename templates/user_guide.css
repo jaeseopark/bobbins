@@ -97,13 +97,17 @@
     margin: 5px;
 }
 
+table {
+    margin-left: 0.65em;
+}
+
 td {
     font-size: x-small;
     color: #6f6a68;
 }
 
 .content .materials .col1 {
-    min-width: 15em;
+    min-width: 11em;
 }
 
 .video-link-container {

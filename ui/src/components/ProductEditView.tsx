@@ -13,16 +13,19 @@ import {
   NumberInput,
   NumberInputField,
   NumberInputStepper,
-  HStack,
   Checkbox,
 } from "@chakra-ui/react";
+import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import { v4 as uuidv4 } from "uuid";
 import { ChatIcon } from "@chakra-ui/icons";
 export type SubmitResponse = "ADDED" | "UPDATED" | "FAILED";
 import apiclient from "../apiclient";
 
+
+import "./ProductEditView.scss"
+
 // TODO: support URLs
-const MATERIAL_URL_REGEX = "^([^:])*:*(.*)$";
+const MATERIAL_URL_REGEX = "^([^:]+):(.*)$";
 
 const getIntroGenerationPrompt = (p: Product): string => {
   const sizeCount = Object.keys(p.sizes).length;
@@ -228,40 +231,58 @@ const ProductEditView = ({
   return (
     <div className="product-edit-view">
       <FormControl>
-        <FormLabel>Name</FormLabel>
-        <Input type="text" onChange={getSingularChangeHandler(sigName)} value={sigName.value} />
-        <FormLabel>Tutorial Link</FormLabel>
-        <Input type="text" onChange={getSingularChangeHandler(sigTutorialLink)} value={sigTutorialLink.value} />
-        <HStack>
-          <NumericField label="Duration (minutes)" sig={sigDuration} min={1} max={600} step={1} />
-          {/* @ts-ignore */}
-          <Checkbox isChecked={sigContainsNotches.value} onChange={getCheckboxChangeHandler(sigContainsNotches)}>
-            Notches
-          </Checkbox>
-        </HStack>
-        <HStack>
-          <div>
+        <Tabs>
+          <TabList>
+            <Tab>Overview</Tab>
+            <Tab>Stitches</Tab>
+            <Tab>Sizes & Mats</Tab>
+            <Tab>Intro</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <FormLabel>Name</FormLabel>
+              <Input type="text" onChange={getSingularChangeHandler(sigName)} value={sigName.value} />
+              <FormLabel>Tutorial Link</FormLabel>
+              <Input type="text" onChange={getSingularChangeHandler(sigTutorialLink)} value={sigTutorialLink.value} />
+              <NumericField label="Duration (minutes)" sig={sigDuration} min={1} max={600} step={1} />
+              <FormLabel>Keywords (Line-separated)</FormLabel>
+              <Textarea type="text" onChange={getSingularChangeHandler(sigKeywords)} value={sigKeywords.value}  minHeight="200px"/>
+            </TabPanel>
+            <TabPanel>
             <NumericField label="Seam Allowance (cm)" sig={sigSeamAllowance} min={0.1} max={2} step={0.1} />
-          </div>
-          <div>
-            <NumericField label="Top Stitch (cm)" sig={sigTopStitch} min={0.1} max={2} step={0.1} />
-          </div>
-          <div>
-            <NumericField label="Baste Stitch (cm)" sig={sigBasteStitch} min={0.1} max={2} step={0.1} />
-          </div>
-        </HStack>
-        <NumericField label="No. Pieces Missing S/A" sig={sigNumMissingSeamAllowances} min={0} max={10} step={1} />
-        <FormLabel>Keywords (Line-separated)</FormLabel>
-        <Textarea type="text" onChange={getSingularChangeHandler(sigKeywords)} value={sigKeywords.value} />
-        <FormLabel>Introduction</FormLabel>
-        <Textarea type="text" onChange={getSingularChangeHandler(sigIntroduction)} value={sigIntroduction.value} />
-        <Button onClick={generateIntro} leftIcon={<ChatIcon />} size="sm">
-          Generate w/ ChatGPT
-        </Button>
-        <FormLabel>Sizes</FormLabel>
-        <Textarea type="text" onChange={getSingularChangeHandler(sigSizes)} value={sigSizes.value} />
-        <FormLabel>Materials</FormLabel>
-        <Textarea type="text" onChange={getSingularChangeHandler(sigMaterials)} value={sigMaterials.value} />
+                  <NumericField label="Top Stitch (cm)" sig={sigTopStitch} min={0.1} max={2} step={0.1} />
+                  <NumericField label="Baste Stitch (cm)" sig={sigBasteStitch} min={0.1} max={2} step={0.1} />
+              <NumericField
+                label="No. Pieces Missing S/A"
+                sig={sigNumMissingSeamAllowances}
+                min={0}
+                max={10}
+                step={1}
+              />
+                  {/* @ts-ignore */}
+                  <Checkbox isChecked={sigContainsNotches.value} onChange={getCheckboxChangeHandler(sigContainsNotches)}>
+                Notches
+              </Checkbox>
+            </TabPanel>
+            <TabPanel>
+              <FormLabel>Sizes</FormLabel>
+              <Textarea type="text" onChange={getSingularChangeHandler(sigSizes)} value={sigSizes.value} />
+              <FormLabel>Materials</FormLabel>
+              <Textarea type="text" minHeight="175px" onChange={getSingularChangeHandler(sigMaterials)} value={sigMaterials.value} />
+            </TabPanel>
+            <TabPanel>
+            <FormLabel>Introduction</FormLabel>
+              <Textarea
+                type="text"
+                onChange={getSingularChangeHandler(sigIntroduction)}
+                value={sigIntroduction.value}
+                minHeight="300px"
+              /> <Button onClick={generateIntro} leftIcon={<ChatIcon />} size="sm" marginTop="1em">
+                Generate w/ ChatGPT
+              </Button>
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
       </FormControl>
       <ButtonGroup marginTop=".75em" marginBottom=".75em">
         <Button
