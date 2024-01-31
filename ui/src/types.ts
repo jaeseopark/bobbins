@@ -11,8 +11,9 @@ export type Product = {
   thumbnails?: string[];
   materials?: Material[];
   sizes: {
-    [key: string]: number[];
-  };
+    alias: string;
+    dimensions: number[];
+  }[];
   tutorialLink: string;
   containsNotches: boolean;
   numMissingSeamAllowances: number;

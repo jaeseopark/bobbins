@@ -1,9 +1,19 @@
 import { Product, ChatLogEntry } from "./types";
 
+const sanitizeSizes = (p: Product) => {
+  if (!Array.isArray(p.sizes) && typeof p.sizes === "object") {
+    p.sizes = Object.entries(p.sizes as { [key: string]: number[] }).map(([alias, dimensions]) => ({
+      alias,
+      dimensions,
+    }));
+  }
+  return p;
+};
+
 const getProducts = (): Promise<Product[]> =>
   fetch("/api/products")
     .then((r) => r.json())
-    .then(({ products }) => products);
+    .then(({ products }) => products.map(sanitizeSizes));
 
 const addProduct = (p: Product): Promise<Product> =>
   fetch("/api/products", {

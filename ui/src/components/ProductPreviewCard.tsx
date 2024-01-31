@@ -26,18 +26,15 @@ const DEFAULT_THUMBNAIL_URL = "https://i.etsystatic.com/46820714/r/il/04b528/557
 
 const getDescription = (product: Product) => {
   const getSizeStrings = (): string[] => {
-    const sizeKeys = Object.keys(product.sizes);
-
-    if (sizeKeys.length === 1) {
-      const [firstKey] = sizeKeys;
-      return [`💜 Size: ${getDimensionsAsString(Object.values(product.sizes[firstKey]), cmToInchString)}`];
+    if (product.sizes.length === 1) {
+      return [`💜 Size: ${getDimensionsAsString(product.sizes[0].dimensions, cmToInchString)}`];
     }
 
     return [
-      `💜 ${sizeKeys.length} sizes provided`,
-      ...Object.entries(product.sizes).map(
-        ([sizeAlias, dims]) =>
-          `💜 - ${capitalizeFirstLetter(sizeAlias)}: ${getDimensionsAsString(dims, cmToInchString)}`,
+      `💜 ${product.sizes.length} sizes provided`,
+      ...product.sizes.map(
+        ({ alias, dimensions }) =>
+          `💜 - ${capitalizeFirstLetter(alias)}: ${getDimensionsAsString(dimensions, cmToInchString)}`,
       ),
     ];
   };
@@ -121,7 +118,7 @@ const ProductPreviewCard = ({ product }: { product: Product }) => {
       </Card>
       <Modal isOpen={isEditorModalOpen} onClose={closeEditorModal}>
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent minWidth="750px">
           <ModalBody>
             <ProductEditView product={product} onSubmit={onChange} onCancel={closeEditorModal} />
           </ModalBody>

@@ -1,5 +1,5 @@
 import { Signal, useSignal } from "@preact/signals";
-import { Material, Product } from "../types";
+import { Product } from "../types";
 import {
   FormControl,
   FormLabel,
@@ -14,6 +14,7 @@ import {
   NumberInputField,
   NumberInputStepper,
   Checkbox,
+  Select,
 } from "@chakra-ui/react";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import { v4 as uuidv4 } from "uuid";
@@ -21,8 +22,7 @@ import { ChatIcon, DeleteIcon } from "@chakra-ui/icons";
 export type SubmitResponse = "ADDED" | "UPDATED" | "FAILED";
 import apiclient from "../apiclient";
 
-
-import "./ProductEditView.scss"
+import "./ProductEditView.scss";
 
 const getIntroGenerationPrompt = (p: Product): string => {
   const sizeCount = Object.keys(p.sizes).length;
@@ -37,21 +37,21 @@ const getIntroGenerationPrompt = (p: Product): string => {
     .join(" ");
 };
 
-const sizeMapToString = (sizes: { [key: string]: number[] }) => {
-  return Object.entries(sizes)
-    .map(([sizeAlias, dimensions]) => `${sizeAlias}: ${dimensions.join("x")}`)
-    .join("\n");
+const DimensionField = ({ sigSizes, i, k }: { k: number; sigSizes: Signal; i: number }) => {
+  const dimensions = sigSizes.value[i].dimensions;
+  return (
+    <NumberInput
+      value={dimensions[k]}
+      onChange={(_, value) => {
+        dimensions[k] = value;
+        sigSizes.value[i].dimensions = dimensions;
+        sigSizes.value = [...sigSizes.value];
+      }}
+    >
+      <NumberInputField />
+    </NumberInput>
+  );
 };
-
-const materialArrayToString = (materials: Material[]): string =>
-  materials
-    .map(({ name, notes, url }) => {
-      if (url) {
-        return `${name}: ${notes} ${url}`;
-      }
-      return `${name}: ${notes}`;
-    })
-    .join("\n");
 
 const ProductEditView = ({
   product,
@@ -71,7 +71,7 @@ const ProductEditView = ({
   const sigMaterials = useSignal(product?.materials || []);
   const sigDuration = useSignal(product?.duration || 30);
   const sigThumbnails = useSignal(product?.thumbnails);
-  const sigSizes = useSignal(sizeMapToString(product?.sizes || {}));
+  const sigSizes = useSignal(product?.sizes || []);
   const sigTutorialLink = useSignal(product?.tutorialLink || "https://youtube.com/");
   const sigNumMissingSeamAllowances = useSignal(product?.numMissingSeamAllowances || 0);
   const sigSeamAllowance = useSignal(product?.seamAllowance || 1);
@@ -105,28 +105,6 @@ const ProductEditView = ({
       .map((keyword) => keyword.trim())
       .filter((keyword) => keyword);
 
-  const getSizesAsMap = () =>
-    sigSizes.value
-      .split("\n")
-      .filter((line) => line.trim())
-      .map((line) => {
-        line = line.replace("cm", "");
-        let sizeAlias = "regular";
-        let dimStr = line;
-        if (line.includes(":")) {
-          const splitLine = line.split(":");
-          sizeAlias = splitLine[0];
-          dimStr = splitLine[1];
-        }
-        return { sizeAlias, dimensions: dimStr.split("x").map((num) => parseFloat(num.trim())) };
-      })
-      .reduce((acc, { sizeAlias, dimensions }) => {
-        return {
-          ...acc,
-          [sizeAlias]: dimensions,
-        };
-      }, {});
-
   const getUpdatedProductObject = (): Product => ({
     ...product!,
     id: sigId.value,
@@ -136,7 +114,7 @@ const ProductEditView = ({
     duration: sigDuration.value,
     introduction: sigIntroduction.value,
     keywords: getKeywordsAsArray(),
-    sizes: getSizesAsMap(),
+    sizes: sigSizes.value,
     materials: sigMaterials.value,
     numMissingSeamAllowances: sigNumMissingSeamAllowances.value,
     seamAllowance: sigSeamAllowance.value,
@@ -191,8 +169,12 @@ const ProductEditView = ({
   };
 
   const addMaterial = () => {
-    sigMaterials.value = [...sigMaterials.value, { name: "{Material}", notes: "{Detail}" }]
-  }
+    sigMaterials.value = [...sigMaterials.value, { name: "{Material}", notes: "{Detail}" }];
+  };
+
+  const addSize = () => {
+    sigSizes.value = [...sigSizes.value, { alias: "Another Size", dimensions: [1, 2, 3] }];
+  };
 
   const NumericField = ({ label, sig, ...rest }: { label: string; sig: Signal } & Record<string, any>) => (
     <>
@@ -232,12 +214,17 @@ const ProductEditView = ({
               <Input type="text" onChange={getSingularChangeHandler(sigTutorialLink)} value={sigTutorialLink.value} />
               <NumericField label="Duration (minutes)" sig={sigDuration} min={1} max={600} step={1} />
               <FormLabel>Keywords (Line-separated)</FormLabel>
-              <Textarea type="text" onChange={getSingularChangeHandler(sigKeywords)} value={sigKeywords.value}  minHeight="200px"/>
+              <Textarea
+                type="text"
+                onChange={getSingularChangeHandler(sigKeywords)}
+                value={sigKeywords.value}
+                minHeight="200px"
+              />
             </TabPanel>
             <TabPanel>
-            <NumericField label="Seam Allowance (cm)" sig={sigSeamAllowance} min={0.1} max={2} step={0.1} />
-                  <NumericField label="Top Stitch (cm)" sig={sigTopStitch} min={0.1} max={2} step={0.1} />
-                  <NumericField label="Baste Stitch (cm)" sig={sigBasteStitch} min={0.1} max={2} step={0.1} />
+              <NumericField label="Seam Allowance (cm)" sig={sigSeamAllowance} min={0.1} max={2} step={0.1} />
+              <NumericField label="Top Stitch (cm)" sig={sigTopStitch} min={0.1} max={2} step={0.1} />
+              <NumericField label="Baste Stitch (cm)" sig={sigBasteStitch} min={0.1} max={2} step={0.1} />
               <NumericField
                 label="No. Pieces Missing S/A"
                 sig={sigNumMissingSeamAllowances}
@@ -245,44 +232,115 @@ const ProductEditView = ({
                 max={10}
                 step={1}
               />
-                  {/* @ts-ignore */}
-                  <Checkbox isChecked={sigContainsNotches.value} onChange={getCheckboxChangeHandler(sigContainsNotches)}>
+              {/* @ts-ignore */}
+              <Checkbox isChecked={sigContainsNotches.value} onChange={getCheckboxChangeHandler(sigContainsNotches)}>
                 Notches
               </Checkbox>
             </TabPanel>
             <TabPanel>
               <FormLabel>Sizes</FormLabel>
-              <Textarea type="text" onChange={getSingularChangeHandler(sigSizes)} value={sigSizes.value} />
+              <table>
+                <tbody>
+                  {sigSizes.value.map(({ alias, dimensions }, i) => {
+                    return (
+                      <tr>
+                        {sigSizes.value.length > 1 && (
+                          <td>
+                            <Input
+                              type="text"
+                              value={alias}
+                              onChange={({ target: { value } }) => {
+                                sigSizes.value[i].alias = value;
+                                sigSizes.value = [...sigSizes.value];
+                              }}
+                            />
+                          </td>
+                        )}
+                        <td>
+                          <Select
+                            value={dimensions.length}
+                            width="150px"
+                            onChange={({ target: { value } }) => {
+                              const valueAsNumber = parseInt(value);
+                              if (valueAsNumber !== dimensions.length) {
+                                // TODO revise this logic
+                                const newDimensions =
+                                  valueAsNumber === 2 ? dimensions.slice(0, 2) : [...dimensions.slice(0, 2), 1];
+                                sigSizes.value[i].dimensions = newDimensions;
+                                sigSizes.value = [...sigSizes.value];
+                              }
+                            }}
+                          >
+                            <option value={2}>2 dimensions</option>
+                            <option value={3}>3 dimensions</option>
+                          </Select>
+                        </td>
+                        {dimensions.map((_, k) => <td>
+                          <DimensionField sigSizes={sigSizes} i={i} k={k} />
+                        </td>)}
+                        <td>
+                          <Button
+                            leftIcon={<DeleteIcon />}
+                            onClick={() => {
+                              sigSizes.value = sigSizes.value.filter((_, j) => i !== j);
+                            }}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              <Button onClick={addSize}>+</Button>
               <FormLabel>Materials</FormLabel>
               <table>
                 <tbody>
-                {sigMaterials.value.map(({name, notes}, i) => <tr key={`${i}-${name}`}>
-                  <td><Input type="text" value={name} onChange={({target: {value}}) => {
-                    sigMaterials.value[i].name = value as string;
-                    sigMaterials.value = [...sigMaterials.value]; // tell the observe the value has changed.
-                  }}/></td>
-                  <td><Input type="text" value={notes} onChange={({target: {value}}) => {
-                    sigMaterials.value[i].notes = value as string;
-                    sigMaterials.value = [...sigMaterials.value]; // tell the observe the value has changed.
-                  }} /></td>
-                  <td>
-                    <Button leftIcon={<DeleteIcon />} onClick={() => {
-                      sigMaterials.value = sigMaterials.value.filter((_, j) => i !== j)
-                    }} />
-                  </td>
-                </tr>)}
+                  {sigMaterials.value.map(({ name, notes }, i) => (
+                    <tr>
+                      <td>
+                        <Input
+                          type="text"
+                          value={name}
+                          onChange={({ target: { value } }) => {
+                            sigMaterials.value[i].name = value as string;
+                            sigMaterials.value = [...sigMaterials.value]; // tell the observe the value has changed.
+                          }}
+                        />
+                      </td>
+                      <td>
+                        <Input
+                          type="text"
+                          value={notes}
+                          minWidth="275px"
+                          onChange={({ target: { value } }) => {
+                            sigMaterials.value[i].notes = value as string;
+                            sigMaterials.value = [...sigMaterials.value]; // tell the observe the value has changed.
+                          }}
+                        />
+                      </td>
+                      <td>
+                        <Button
+                          leftIcon={<DeleteIcon />}
+                          onClick={() => {
+                            sigMaterials.value = sigMaterials.value.filter((_, j) => i !== j);
+                          }}
+                        />
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
               <Button onClick={addMaterial}>+</Button>
             </TabPanel>
             <TabPanel>
-            <FormLabel>Introduction</FormLabel>
+              <FormLabel>Introduction</FormLabel>
               <Textarea
                 type="text"
                 onChange={getSingularChangeHandler(sigIntroduction)}
                 value={sigIntroduction.value}
                 minHeight="300px"
-              /> <Button onClick={generateIntro} leftIcon={<ChatIcon />} size="sm" marginTop="1em">
+              />{" "}
+              <Button onClick={generateIntro} leftIcon={<ChatIcon />} size="sm" marginTop="1em">
                 Generate w/ ChatGPT
               </Button>
             </TabPanel>
