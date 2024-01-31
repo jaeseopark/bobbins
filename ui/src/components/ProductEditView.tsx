@@ -17,15 +17,12 @@ import {
 } from "@chakra-ui/react";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import { v4 as uuidv4 } from "uuid";
-import { ChatIcon } from "@chakra-ui/icons";
+import { ChatIcon, DeleteIcon } from "@chakra-ui/icons";
 export type SubmitResponse = "ADDED" | "UPDATED" | "FAILED";
 import apiclient from "../apiclient";
 
 
 import "./ProductEditView.scss"
-
-// TODO: support URLs
-const MATERIAL_URL_REGEX = "^([^:]+):(.*)$";
 
 const getIntroGenerationPrompt = (p: Product): string => {
   const sizeCount = Object.keys(p.sizes).length;
@@ -71,7 +68,7 @@ const ProductEditView = ({
   const sigDate = useSignal(product?.date || Date.now());
   const sigIntroduction = useSignal(product?.introduction);
   const sigKeywords = useSignal(product?.keywords.join("\n") || "");
-  const sigMaterials = useSignal(materialArrayToString(product?.materials || []));
+  const sigMaterials = useSignal(product?.materials || []);
   const sigDuration = useSignal(product?.duration || 30);
   const sigThumbnails = useSignal(product?.thumbnails);
   const sigSizes = useSignal(sizeMapToString(product?.sizes || {}));
@@ -79,7 +76,7 @@ const ProductEditView = ({
   const sigNumMissingSeamAllowances = useSignal(product?.numMissingSeamAllowances || 0);
   const sigSeamAllowance = useSignal(product?.seamAllowance || 1);
   const sigTopStitch = useSignal(product?.topStitch || 0.2);
-  const sigBasteStitch = useSignal(product?.basteStitch || 0.5);
+  const sigBasteStitch = useSignal(product?.basteStitch || 0.2);
   const sigContainsNotches = useSignal(product?.containsNotches || true);
 
   const handleSubmitResponse = (response: SubmitResponse) => {
@@ -130,21 +127,6 @@ const ProductEditView = ({
         };
       }, {});
 
-  const getMaterialsAsArray = (): Material[] =>
-    sigMaterials.value
-      .split("\n")
-      .filter((line) => line.trim())
-      .map((line) => line.match(MATERIAL_URL_REGEX))
-      .filter((match) => match)
-      .map((match) => {
-        // TODO: support URLs
-        const [_, name, notes] = match!;
-        return {
-          name: name.trim(),
-          notes: notes.trim(),
-        };
-      });
-
   const getUpdatedProductObject = (): Product => ({
     ...product!,
     id: sigId.value,
@@ -155,7 +137,7 @@ const ProductEditView = ({
     introduction: sigIntroduction.value,
     keywords: getKeywordsAsArray(),
     sizes: getSizesAsMap(),
-    materials: getMaterialsAsArray(),
+    materials: sigMaterials.value,
     numMissingSeamAllowances: sigNumMissingSeamAllowances.value,
     seamAllowance: sigSeamAllowance.value,
     topStitch: sigTopStitch.value,
@@ -207,6 +189,10 @@ const ProductEditView = ({
         });
       });
   };
+
+  const addMaterial = () => {
+    sigMaterials.value = [...sigMaterials.value, { name: "{Material}", notes: "{Detail}" }]
+  }
 
   const NumericField = ({ label, sig, ...rest }: { label: string; sig: Signal } & Record<string, any>) => (
     <>
@@ -268,7 +254,26 @@ const ProductEditView = ({
               <FormLabel>Sizes</FormLabel>
               <Textarea type="text" onChange={getSingularChangeHandler(sigSizes)} value={sigSizes.value} />
               <FormLabel>Materials</FormLabel>
-              <Textarea type="text" minHeight="175px" onChange={getSingularChangeHandler(sigMaterials)} value={sigMaterials.value} />
+              <table>
+                <tbody>
+                {sigMaterials.value.map(({name, notes}, i) => <tr key={`${i}-${name}`}>
+                  <td><Input type="text" value={name} onChange={({target: {value}}) => {
+                    sigMaterials.value[i].name = value as string;
+                    sigMaterials.value = [...sigMaterials.value]; // tell the observe the value has changed.
+                  }}/></td>
+                  <td><Input type="text" value={notes} onChange={({target: {value}}) => {
+                    sigMaterials.value[i].notes = value as string;
+                    sigMaterials.value = [...sigMaterials.value]; // tell the observe the value has changed.
+                  }} /></td>
+                  <td>
+                    <Button leftIcon={<DeleteIcon />} onClick={() => {
+                      sigMaterials.value = sigMaterials.value.filter((_, j) => i !== j)
+                    }} />
+                  </td>
+                </tr>)}
+                </tbody>
+              </table>
+              <Button onClick={addMaterial}>+</Button>
             </TabPanel>
             <TabPanel>
             <FormLabel>Introduction</FormLabel>

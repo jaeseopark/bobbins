@@ -51,6 +51,7 @@ const getDescription = (product: Product) => {
     ...getSizeStrings(),
     `💜 Youtube tutorial: ${product.tutorialLink}`,
     `💜 Craft time: ${product.duration} minutes`,
+    `💜 The information regarding pattern printing methods, stitching details, materials used, and more can be found on the "User Guide_Thank you for purchasing" page, which is included in the PDF file when you make a purchase`,
     "💜 No refunds available as the PDF is an immediate download",
   ]
     .filter((line) => line)
@@ -95,12 +96,6 @@ const ProductPreviewCard = ({ product }: { product: Product }) => {
             </HStack>
             <Button leftIcon={<DownloadIcon />} onClick={openUserGuide} variant="solid" colorScheme="blue" size="sm">
               User guide
-            </Button>
-            <Button variant="solid" colorScheme="blue" size="sm" isDisabled>
-              Create thumbnails
-            </Button>
-            <Button variant="solid" colorScheme="blue" size="sm" isDisabled>
-              Create videos
             </Button>
             <Button
               variant="solid"
