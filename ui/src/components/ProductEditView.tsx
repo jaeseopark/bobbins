@@ -276,9 +276,11 @@ const ProductEditView = ({
                             <option value={3}>3 dimensions</option>
                           </Select>
                         </td>
-                        {dimensions.map((_, k) => <td>
-                          <DimensionField sigSizes={sigSizes} i={i} k={k} />
-                        </td>)}
+                        {dimensions.map((_, k) => (
+                          <td>
+                            <DimensionField sigSizes={sigSizes} i={i} k={k} />
+                          </td>
+                        ))}
                         <td>
                           <Button
                             leftIcon={<DeleteIcon />}
