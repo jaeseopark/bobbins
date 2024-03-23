@@ -238,7 +238,7 @@ const ProductEditView = ({
               </Checkbox>
             </TabPanel>
             <TabPanel>
-              <FormLabel>Sizes</FormLabel>
+              <FormLabel>Sizes (cm)</FormLabel>
               <table>
                 <tbody>
                   {sigSizes.value.map(({ alias, dimensions }, i) => {
