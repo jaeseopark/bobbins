@@ -14,6 +14,9 @@ export type Product = {
     alias: string;
     dimensions: number[];
   }[];
+  stitches: {
+    [alias: string]: number;
+  };
   tutorialLink: string;
   containsNotches: boolean;
   numMissingSeamAllowances: number;

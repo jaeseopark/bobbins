@@ -7,12 +7,23 @@ USER_GUIDE_CSS_PATH = "user_guide.css"
 
 
 def get_template_params(product: dict):
-    seam_allowance_description = f"{product.get('seamAllowance', '_')} cm away from the edge.";
-    top_stitch_description = f"{product.get('topStitch', '_')} cm away from the edge."
-    baste_stitch_description = f"{product.get('basteStitch', '_')} cm away from the edge."
+    product = {**product}
+    
+    stitches = product.get("stitches", dict())
+    seam_allowance_description = f"{stitches.get('seamAllowance', '_')} cm away from the edge."
+    second_seam_allowance = stitches.get("secondSeamAllowance", 0)
+    if second_seam_allowance > 0:
+        seam_allowance_description = seam_allowance_description.replace("cm away", f"cm and {second_seam_allowance} cm away")
+    top_stitch_description = f"{stitches.get('topStitch', '_')} cm away from the edge."
+    baste_stitch_description = f"{stitches.get('basteStitch', '_')} cm away from the edge."
+
+    product.pop("seamAllowance")
+    product.pop("topStitch")
+    product.pop("basteStitch")
 
     return dict(
         **product,
+        **stitches,
         seam_allowance_description=seam_allowance_description,
         top_stitch_description=top_stitch_description,
         baste_stitch_description=baste_stitch_description,

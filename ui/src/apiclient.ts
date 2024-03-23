@@ -10,10 +10,26 @@ const sanitizeSizes = (p: Product) => {
   return p;
 };
 
+const sanitizeStitches = (p: Product) => {
+  if (!p.stitches || Object.keys(p.stitches).length === 0) {
+    p.stitches = {
+      seamAllowance: p.seamAllowance,
+      topStitch: p.topStitch,
+      basteStitch: p.basteStitch,
+    };
+  }
+
+  if (!p.stitches?.secondSeamAllowance) {
+      p.stitches.secondSeamAllowance = 0;
+  }
+
+  return p;
+};
+
 const getProducts = (): Promise<Product[]> =>
   fetch("/api/products")
     .then((r) => r.json())
-    .then(({ products }) => products.map(sanitizeSizes));
+    .then(({ products }) => products.map(sanitizeSizes).map(sanitizeStitches));
 
 const addProduct = (p: Product): Promise<Product> =>
   fetch("/api/products", {

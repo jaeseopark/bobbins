@@ -41,6 +41,7 @@ const DimensionField = ({ sigSizes, i, k }: { k: number; sigSizes: Signal; i: nu
   const dimensions = sigSizes.value[i].dimensions;
   return (
     <NumberInput
+      allowMouseWheel
       value={dimensions[k]}
       step={0.1}
       onChange={(_, value) => {
@@ -53,6 +54,26 @@ const DimensionField = ({ sigSizes, i, k }: { k: number; sigSizes: Signal; i: nu
     </NumberInput>
   );
 };
+
+const NumericField = ({ label, sig, ...rest }: { label: string; sig: Signal } & Record<string, any>) => (
+  <>
+    <FormLabel>{label}</FormLabel>
+    <NumberInput
+      size="md"
+      maxW={24}
+      value={sig.value}
+      onChange={(_, value) => (sig.value = value)}
+      allowMouseWheel
+      {...rest}
+    >
+      <NumberInputField />
+      <NumberInputStepper>
+        <NumberIncrementStepper />
+        <NumberDecrementStepper />
+      </NumberInputStepper>
+    </NumberInput>
+  </>
+);
 
 const ProductEditView = ({
   product,
@@ -71,13 +92,17 @@ const ProductEditView = ({
   const sigKeywords = useSignal(product?.keywords.join("\n") || "");
   const sigMaterials = useSignal(product?.materials || []);
   const sigDuration = useSignal(product?.duration || 30);
-  const sigThumbnails = useSignal(product?.thumbnails);
+  const sigStitches = useSignal(
+    product?.stitches || {
+      seamAllowance: 1,
+      secondSeamAllowance: 0,
+      topStitch: 0.2,
+      basteStitch: 0.2,
+    },
+  );
   const sigSizes = useSignal(product?.sizes || []);
   const sigTutorialLink = useSignal(product?.tutorialLink || "https://youtube.com/");
   const sigNumMissingSeamAllowances = useSignal(product?.numMissingSeamAllowances || 0);
-  const sigSeamAllowance = useSignal(product?.seamAllowance || 1);
-  const sigTopStitch = useSignal(product?.topStitch || 0.2);
-  const sigBasteStitch = useSignal(product?.basteStitch || 0.2);
   const sigContainsNotches = useSignal(product?.containsNotches || true);
 
   const handleSubmitResponse = (response: SubmitResponse) => {
@@ -117,10 +142,8 @@ const ProductEditView = ({
     keywords: getKeywordsAsArray(),
     sizes: sigSizes.value,
     materials: sigMaterials.value,
+    stitches: sigStitches.value,
     numMissingSeamAllowances: sigNumMissingSeamAllowances.value,
-    seamAllowance: sigSeamAllowance.value,
-    topStitch: sigTopStitch.value,
-    basteStitch: sigBasteStitch.value,
     containsNotches: sigContainsNotches.value,
   });
 
@@ -177,26 +200,6 @@ const ProductEditView = ({
     sigSizes.value = [...sigSizes.value, { alias: "Another Size", dimensions: [1, 2, 3] }];
   };
 
-  const NumericField = ({ label, sig, ...rest }: { label: string; sig: Signal } & Record<string, any>) => (
-    <>
-      <FormLabel>{label}</FormLabel>
-      <NumberInput
-        size="md"
-        maxW={24}
-        value={sig.value}
-        onChange={(_, value) => (sig.value = value)}
-        allowMouseWheel
-        {...rest}
-      >
-        <NumberInputField />
-        <NumberInputStepper>
-          <NumberIncrementStepper />
-          <NumberDecrementStepper />
-        </NumberInputStepper>
-      </NumberInput>
-    </>
-  );
-
   return (
     <div className="product-edit-view">
       <FormControl>
@@ -223,9 +226,74 @@ const ProductEditView = ({
               />
             </TabPanel>
             <TabPanel>
-              <NumericField label="Seam Allowance (cm)" sig={sigSeamAllowance} min={0.1} max={2} step={0.1} />
-              <NumericField label="Top Stitch (cm)" sig={sigTopStitch} min={0.1} max={2} step={0.1} />
-              <NumericField label="Baste Stitch (cm)" sig={sigBasteStitch} min={0.1} max={2} step={0.1} />
+              <FormLabel>Seam Allowance (cm)</FormLabel>
+              <NumberInput
+                size="md"
+                maxW={24}
+                value={sigStitches.value.seamAllowance}
+                onChange={(_, value) => (sigStitches.value = { ...sigStitches.value, seamAllowance: value })}
+                allowMouseWheel
+                min={0.1}
+                max={1000}
+                step={0.1}
+              >
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+              <FormLabel>Second Seam Allowance (cm) - Set to 0 to ignore</FormLabel>
+              <NumberInput
+                size="md"
+                maxW={24}
+                value={sigStitches.value.secondSeamAllowance}
+                onChange={(_, value) => (sigStitches.value = { ...sigStitches.value, secondSeamAllowance: value })}
+                allowMouseWheel
+                min={0}
+                max={1000}
+                step={0.1}
+              >
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+              <FormLabel>Top Stitch (cm)</FormLabel>
+              <NumberInput
+                size="md"
+                maxW={24}
+                value={sigStitches.value.topStitch}
+                onChange={(_, value) => (sigStitches.value = { ...sigStitches.value, topStitch: value })}
+                allowMouseWheel
+                min={0.1}
+                max={1000}
+                step={0.1}
+              >
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+              <FormLabel>Baste Stitch (cm)</FormLabel>
+              <NumberInput
+                size="md"
+                maxW={24}
+                value={sigStitches.value.basteStitch}
+                onChange={(_, value) => (sigStitches.value = { ...sigStitches.value, basteStitch: value })}
+                allowMouseWheel
+                min={0.1}
+                max={1000}
+                step={0.1}
+              >
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
               <NumericField
                 label="No. Pieces Missing S/A"
                 sig={sigNumMissingSeamAllowances}
