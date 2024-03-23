@@ -7,9 +7,8 @@ import {
   MessageHeader,
 } from "@minchat/react-chat-ui";
 import apiclient from "../../apiclient";
-import { signal } from "@preact/signals";
+import { signal, useSignal } from "@preact/signals";
 import MessageType from "@minchat/react-chat-ui/dist/types/MessageType";
-import { useState } from "preact/hooks";
 
 const sigMessages = signal<MessageType[]>([]);
 
@@ -26,26 +25,26 @@ const getUpdatedMessageArray = (messages: MessageType[], user: string, message: 
   ];
 };
 
-function App() {
-  const [showTypingIndicator, setShowTypingIndicator] = useState(false);
+const Chat = () => {
+  const sigShowTypingIndicator = useSignal(false);
 
   const handleSend = (question: string) => {
-    setShowTypingIndicator(true);
+    sigShowTypingIndicator.value = true;
     sigMessages.value = getUpdatedMessageArray(sigMessages.value, "HUMAN", question);
 
     apiclient.ask({ question }).then(({ answer }) => {
       sigMessages.value = getUpdatedMessageArray(sigMessages.value, "BOT", answer);
     }).finally(() => {
-      setShowTypingIndicator(false);
+      sigShowTypingIndicator.value = false;
     });
   };
 
   return (
-    <MinChatUiProvider theme="#6ea9d7">
+    <MinChatUiProvider>
       <MainContainer>
         <MessageContainer>
           <MessageHeader />
-          <MessageList showTypingIndicator={showTypingIndicator} currentUserId="HUMAN" messages={sigMessages.value} />
+          <MessageList showTypingIndicator={sigShowTypingIndicator.value} currentUserId="HUMAN" messages={sigMessages.value} />
           <MessageInput onSendMessage={handleSend} showSendButton placeholder="Type message here" />
         </MessageContainer>
       </MainContainer>
@@ -53,4 +52,4 @@ function App() {
   );
 }
 
-export default App;
+export default Chat;
