@@ -49,6 +49,7 @@ const getDescription = (product: Product) => {
     `💜 Youtube tutorial: ${product.tutorialLink}`,
     `💜 Craft time: ${product.duration} minutes`,
     `💜 The information regarding pattern printing methods, stitching details, materials used, and more can be found on the "User Guide_Thank you for purchasing" page, which is included in the PDF file when you make a purchase`,
+    "💜 The downloads links are only available on the Etsy website and not on the mobile app. Please make sure you are using the web browser and navigate to the the Purchases and Reviews section of your profile after placing the order.",
     "💜 No refunds available as the PDF is an immediate download",
   ]
     .filter((line) => line)
