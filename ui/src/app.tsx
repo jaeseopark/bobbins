@@ -10,6 +10,7 @@ import { JSX } from "preact/jsx-runtime";
 import CsMessageComposer from "./components/CsMessageComposer";
 
 import "./app.scss";
+import Chat from "./components/chat/Chat";
 
 const Inventory = () => {
   if (sigIsLoading.value) {
@@ -29,6 +30,7 @@ type View = [string, string, JSX.Element];
 const VIEWS: View[] = [
   ["/", "Inventory", <Inventory />],
   ["cs", "CS Message Composer", <CsMessageComposer />],
+  ["chat", "Chat", <Chat />],
   ["/templates/userguide", "User Guide Template", <UserGuideTemplate />],
 ];
 

@@ -13,6 +13,7 @@
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@minchat/react-chat-ui": "^0.16.2",
     "@preact/signals": "^1.2.2",
     "@types/node-random-name": "^1.0.2",
     "fraction.js": "^4.3.7",
