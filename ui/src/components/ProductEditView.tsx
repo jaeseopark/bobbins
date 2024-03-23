@@ -42,6 +42,7 @@ const DimensionField = ({ sigSizes, i, k }: { k: number; sigSizes: Signal; i: nu
   return (
     <NumberInput
       value={dimensions[k]}
+      step={0.1}
       onChange={(_, value) => {
         dimensions[k] = value;
         sigSizes.value[i].dimensions = dimensions;
@@ -261,7 +262,7 @@ const ProductEditView = ({
                             value={dimensions.length}
                             width="150px"
                             onChange={({ target: { value } }) => {
-                              const valueAsNumber = parseInt(value);
+                              const valueAsNumber = parseFloat(value);
                               if (valueAsNumber !== dimensions.length) {
                                 // TODO revise this logic
                                 const newDimensions =
