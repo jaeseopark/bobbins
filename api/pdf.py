@@ -17,9 +17,9 @@ def get_template_params(product: dict):
     top_stitch_description = f"{stitches.get('topStitch', '_')} cm away from the edge."
     baste_stitch_description = f"{stitches.get('basteStitch', '_')} cm away from the edge."
 
-    product.pop("seamAllowance")
-    product.pop("topStitch")
-    product.pop("basteStitch")
+    for key in ("seamAllowance", "topStitch", "basteStitch"):
+        if key in product:
+            product.pop(key)
 
     return dict(
         **product,
