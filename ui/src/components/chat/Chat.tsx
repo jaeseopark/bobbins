@@ -46,7 +46,7 @@ const Chat = () => {
 
   return (
     <MinChatUiProvider>
-      <MainContainer style={{height: "calc(100vh - 5em)"}}>
+      <MainContainer style={{ height: "calc(100vh - 5em)" }}>
         <MessageContainer>
           <MessageHeader />
           <MessageList

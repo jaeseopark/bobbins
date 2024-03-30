@@ -20,7 +20,7 @@ const sanitizeStitches = (p: Product) => {
   }
 
   if (!p.stitches?.secondSeamAllowance) {
-      p.stitches.secondSeamAllowance = 0;
+    p.stitches.secondSeamAllowance = 0;
   }
 
   return p;
