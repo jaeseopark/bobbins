@@ -29,8 +29,8 @@ type View = [string, string, () => JSX.Element];
 
 const VIEWS: View[] = [
   ["/", "Inventory", Inventory],
-  ["cs", "CS Message Composer", CsMessageComposer],
-  ["chat", "Chat", Chat],
+  ["/cs", "CS Message Composer", CsMessageComposer],
+  ["/chat", "Chat", Chat],
   ["/templates/userguide", "User Guide Template", UserGuideTemplate],
   ["/settings", "Settings", UserSettings],
 ];
@@ -56,22 +56,16 @@ const WithNavbar = ({ Component }: { Component: () => JSX.Element }) => {
   );
 };
 
-const AllRoutes = () => {
-  return (
-    <Routes>
-      <Route path="*" element={<Navigate to="/" replace />} />
-      {VIEWS.map(([path, _, Component]) => (
-        <Route path={path} element={<WithNavbar Component={Component} />} />
-      ))}
-    </Routes>
-  );
-};
-
 export const App = () => {
   return (
     <ChakraProvider>
       <BrowserRouter>
-        <AllRoutes />
+        <Routes>
+          <Route path="*" element={<Navigate to="/" replace />} />
+          {VIEWS.map(([path, _, Component]) => (
+            <Route path={path} element={<WithNavbar Component={Component} />} />
+          ))}
+        </Routes>
       </BrowserRouter>
     </ChakraProvider>
   );
