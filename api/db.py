@@ -22,7 +22,7 @@ def sanitized(func: callable):
         if isinstance(ret, dict):
             return sanitize(ret)
         if isinstance(ret, list):
-            return sanitize([sanitize(a) for a in ret])
+            return [sanitize(a) for a in ret]
         raise NotImplementedError
 
     return wrapper
