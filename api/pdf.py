@@ -21,12 +21,15 @@ def get_template_params(product: dict):
         if key in product:
             product.pop(key)
 
+    shouldShowTips = len(product.get("tips", "")) > 0
+
     return dict(
         **product,
         **stitches,
         seam_allowance_description=seam_allowance_description,
         top_stitch_description=top_stitch_description,
         baste_stitch_description=baste_stitch_description,
+        shouldShowTips=shouldShowTips,
     )
 
 
@@ -34,6 +37,8 @@ def generate_user_guide(product: dict) -> str:
     """
     Generates a user guide PDF and returns the path
     """
+    assert isinstance(product, dict), "'product' must be a dictionary."
+
     template_params = get_template_params(product)
     template_loader = jinja2.FileSystemLoader(searchpath=TEMPLATE_DIR)
     template_env = jinja2.Environment(loader=template_loader)

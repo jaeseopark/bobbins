@@ -1,5 +1,6 @@
 import { Product, ChatLogEntry } from "./types";
 
+// TODO migrate to @sanitized in the backend code base
 const sanitizeSizes = (p: Product) => {
   if (!Array.isArray(p.sizes) && typeof p.sizes === "object") {
     p.sizes = Object.entries(p.sizes as { [key: string]: number[] }).map(([alias, dimensions]) => ({
@@ -10,6 +11,7 @@ const sanitizeSizes = (p: Product) => {
   return p;
 };
 
+// TODO migrate to @sanitized in the backend code base
 const sanitizeStitches = (p: Product) => {
   if (!p.stitches || Object.keys(p.stitches).length === 0) {
     p.stitches = {

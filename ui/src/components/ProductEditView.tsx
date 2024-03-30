@@ -1,5 +1,4 @@
 import { Signal, useSignal } from "@preact/signals";
-import { Product } from "../types";
 import {
   FormControl,
   FormLabel,
@@ -19,10 +18,14 @@ import {
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import { v4 as uuidv4 } from "uuid";
 import { ChatIcon, DeleteIcon } from "@chakra-ui/icons";
-export type SubmitResponse = "ADDED" | "UPDATED" | "FAILED";
 import apiclient from "../apiclient";
+import { Product } from "../types";
 
 import "./ProductEditView.scss";
+
+export type SubmitResponse = "ADDED" | "UPDATED" | "FAILED";
+
+const TOAST_DURATION = 4500;
 
 const getIntroGenerationPrompt = (p: Product): string => {
   const sizeCount = Object.keys(p.sizes).length;
@@ -104,6 +107,7 @@ const ProductEditView = ({
   const sigTutorialLink = useSignal(product?.tutorialLink || "https://youtube.com/");
   const sigNumMissingSeamAllowances = useSignal(product?.numMissingSeamAllowances || 0);
   const sigContainsNotches = useSignal(product?.containsNotches || true);
+  const sigTips = useSignal(product?.tips || "");
 
   const handleSubmitResponse = (response: SubmitResponse) => {
     if (response === "FAILED") {
@@ -145,39 +149,39 @@ const ProductEditView = ({
     stitches: sigStitches.value,
     numMissingSeamAllowances: sigNumMissingSeamAllowances.value,
     containsNotches: sigContainsNotches.value,
+    tips: sigTips.value,
   });
 
-  const generateIntro = () => {
-    let p, question;
+  const updateSigWithChatGpt = (sig: Signal, getPrompt: () => string) => {
+    let question;
 
     try {
-      p = getUpdatedProductObject();
-      question = getIntroGenerationPrompt(p);
+      question = getPrompt();
     } catch (error) {
       toast({
-        description: "The product information is missing or malformed.",
+        description: "Could not get the chat prompt.",
         status: "warning",
-        duration: 1500,
+        duration: TOAST_DURATION,
         isClosable: true,
       });
       return;
     }
 
     toast({
-      description: "Generating...",
+      description: "Processing...",
       status: "info",
-      duration: 7500,
+      duration: TOAST_DURATION,
       isClosable: true,
     });
 
     apiclient
       .ask({ question })
       .then(({ answer }) => {
-        sigIntroduction.value = answer;
+        sig.value = answer;
         toast({
-          description: "The introduction has been generated. Don't forget to save!",
+          description: "Done! Don't forget to save 💾",
           status: "success",
-          duration: 1500,
+          duration: TOAST_DURATION,
           isClosable: true,
         });
       })
@@ -186,7 +190,7 @@ const ProductEditView = ({
           title: "Error",
           description: "Something went wrong.",
           status: "error",
-          duration: 1500,
+          duration: TOAST_DURATION,
           isClosable: true,
         });
       });
@@ -206,9 +210,10 @@ const ProductEditView = ({
         <Tabs>
           <TabList>
             <Tab>Overview</Tab>
+            <Tab>Intro</Tab>
             <Tab>Stitches</Tab>
             <Tab>Sizes & Mats</Tab>
-            <Tab>Intro</Tab>
+            <Tab>Tips</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
@@ -217,6 +222,8 @@ const ProductEditView = ({
               <FormLabel>Tutorial Link</FormLabel>
               <Input type="text" onChange={getSingularChangeHandler(sigTutorialLink)} value={sigTutorialLink.value} />
               <NumericField label="Duration (minutes)" sig={sigDuration} min={1} max={600} step={1} />
+            </TabPanel>
+            <TabPanel>
               <FormLabel>Keywords (Line-separated)</FormLabel>
               <Textarea
                 type="text"
@@ -224,6 +231,39 @@ const ProductEditView = ({
                 value={sigKeywords.value}
                 minHeight="200px"
               />
+              <FormLabel>Introduction</FormLabel>
+              <Textarea
+                type="text"
+                onChange={getSingularChangeHandler(sigIntroduction)}
+                value={sigIntroduction.value}
+                minHeight="300px"
+              />
+              <Button
+                onClick={() =>
+                  updateSigWithChatGpt(sigIntroduction, () => {
+                    const updated = getUpdatedProductObject();
+                    return getIntroGenerationPrompt(updated);
+                  })
+                }
+                isDisabled={(sigIntroduction?.value?.length || 0) > 0}
+                leftIcon={<ChatIcon />}
+                size="sm"
+                marginTop="1em"
+                marginRight="1em"
+              >
+                Generate w/ ChatGPT
+              </Button>
+              <Button
+                onClick={() => {
+                  sigIntroduction.value = "";
+                }}
+                leftIcon={<DeleteIcon />}
+                size="sm"
+                marginTop="1em"
+                isDisabled={(sigIntroduction?.value?.length || 0) === 0}
+              >
+                Clear
+              </Button>
             </TabPanel>
             <TabPanel>
               <FormLabel>Seam Allowance (cm)</FormLabel>
@@ -404,15 +444,53 @@ const ProductEditView = ({
               <Button onClick={addMaterial}>+</Button>
             </TabPanel>
             <TabPanel>
-              <FormLabel>Introduction</FormLabel>
+              <FormLabel>Tips</FormLabel>
               <Textarea
                 type="text"
-                onChange={getSingularChangeHandler(sigIntroduction)}
-                value={sigIntroduction.value}
+                onChange={getSingularChangeHandler(sigTips)}
+                value={sigTips.value}
                 minHeight="300px"
-              />{" "}
-              <Button onClick={generateIntro} leftIcon={<ChatIcon />} size="sm" marginTop="1em">
-                Generate w/ ChatGPT
+              />
+              <Button
+                onClick={() =>
+                  updateSigWithChatGpt(sigTips, () => {
+                    const updated = getUpdatedProductObject();
+                    return `Translate into American English in the context of sewing: ${updated.tips}`;
+                  })
+                }
+                leftIcon={<ChatIcon />}
+                size="sm"
+                marginTop="1em"
+                marginRight="1em"
+                isDisabled={sigTips.value.length === 0}
+              >
+                Translate into English
+              </Button>
+              <Button
+                onClick={() =>
+                  updateSigWithChatGpt(sigTips, () => {
+                    const updated = getUpdatedProductObject();
+                    return `Rephrase in a friendly and delightful tone in the context of sewing: ${updated.tips}`;
+                  })
+                }
+                leftIcon={<ChatIcon />}
+                size="sm"
+                marginTop="1em"
+                marginRight="1em"
+                isDisabled={sigTips.value.length === 0}
+              >
+                Rephrase w/ ChatGPT
+              </Button>
+              <Button
+                onClick={() => {
+                  sigTips.value = "";
+                }}
+                leftIcon={<DeleteIcon />}
+                size="sm"
+                marginTop="1em"
+                isDisabled={sigTips.value.length === 0}
+              >
+                Clear
               </Button>
             </TabPanel>
           </TabPanels>
@@ -429,7 +507,11 @@ const ProductEditView = ({
               updatedProduct = getUpdatedProductObject();
             } catch (e) {
               console.error(e);
-              toast({ description: "Invalid input detected", status: "warning", duration: 2000 });
+              toast({
+                description: "Save failed due to invalid product details.",
+                status: "warning",
+                duration: TOAST_DURATION,
+              });
               return;
             }
             onSubmit(updatedProduct).then(handleSubmitResponse);

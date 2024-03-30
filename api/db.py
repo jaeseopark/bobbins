@@ -10,13 +10,31 @@ CREATE TABLE products (id TEXT PRIMARY KEY, data TEXT);
 """
 
 
+def sanitized(func: callable):
+    def sanitize(product: dict):
+        product["tips"] = product.get("tips", "")
+        return product
+
+    def wrapper(*args, **kwargs):
+        ret = func(*args, **kwargs)
+        if ret is None:
+            return None
+        if isinstance(ret, dict):
+            return sanitize(ret)
+        if isinstance(ret, list):
+            return sanitize([sanitize(a) for a in ret])
+        raise NotImplementedError
+
+    return wrapper
+
+
 class Database(ABC):
     @abstractmethod
     def get_products(self) -> List[dict]:
         pass
 
     @abstractmethod
-    def get_product(self, id: str) -> Optional[List]:
+    def get_product(self, id: str) -> Optional[dict]:
         pass
 
     @abstractmethod
@@ -47,11 +65,13 @@ class SqliteDatabase(Database):
         conn.row_factory = _dict_factory
         return conn
 
+    @sanitized
     def get_products(self) -> List[dict]:
         with self.conn as conn:
-            return conn.execute("SELECT data FROM products")
+            return conn.execute("SELECT data FROM products").fetchall()
 
-    def get_product(self, id: str) -> Optional[List]:
+    @sanitized
+    def get_product(self, id: str) -> Optional[dict]:
         with self.conn as conn:
             stmt = "SELECT data FROM products WHERE id = :id"
             # TODO: null check before returning

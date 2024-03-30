@@ -145,6 +145,16 @@
                             </table>
                         </div>
                     </div>
+                    {% if shouldShowTips %}
+                    <div class="section">
+                        <div class="section-header">
+                            <h2 class="chakra-heading css-9f6g39">Tips</h2>
+                        </div>
+                        <div class="section-body">
+                            {{ tips }}
+                        </div>
+                    </div>
+                    {% endif %}
                     <div class="video-link-container"><a href="{{ tutorialLink }}" target="_blank" class="youtube-hyperlink"><button type="button"
                                 class="chakra-button css-ez23ye video-button"><img
                                 src="/app/templates/images/youtube-logo.svg" aria-hidden="true"

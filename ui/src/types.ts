@@ -1,5 +1,10 @@
 export type Material = { name: string; notes?: string; url?: string };
 
+export type Size = {
+  alias: string;
+  dimensions: number[];
+};
+
 export type Product = {
   id: string;
   name: string;
@@ -10,10 +15,7 @@ export type Product = {
   files?: string[];
   thumbnails?: string[];
   materials?: Material[];
-  sizes: {
-    alias: string;
-    dimensions: number[];
-  }[];
+  sizes: Size[];
   stitches: {
     [alias: string]: number;
   };
@@ -23,6 +25,7 @@ export type Product = {
   seamAllowance: number;
   topStitch: number;
   basteStitch: number;
+  tips: string;
 };
 
 export type Inch = {
