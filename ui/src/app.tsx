@@ -25,14 +25,19 @@ const Inventory = () => {
   );
 };
 
-type View = [string, string, () => JSX.Element];
+type View = {
+  path: string;
+  name: string;
+  component: () => JSX.Element;
+  state: "ACTIVE" | "HIDDEN";
+};
 
 const VIEWS: View[] = [
-  ["/", "Inventory", Inventory],
-  ["/cs", "CS Message Composer", CsMessageComposer],
-  ["/chat", "Chat", Chat],
-  ["/templates/userguide", "User Guide Template", UserGuideTemplate],
-  ["/settings", "Settings", UserSettings],
+  { path: "/", name: "Inventory", component: Inventory, state: "ACTIVE" },
+  { path: "/cs", name: "CS Message Composer", component: CsMessageComposer, state: "HIDDEN" },
+  { path: "/chat", name: "Chat", component: Chat, state: "ACTIVE" },
+  { path: "/templates/userguide", name: "User Guide Template", component: UserGuideTemplate, state: "HIDDEN" },
+  { path: "/settings", name: "Settings", component: UserSettings, state: "ACTIVE" },
 ];
 
 const WithNavbar = ({ Component }: { Component: () => JSX.Element }) => {
@@ -40,7 +45,7 @@ const WithNavbar = ({ Component }: { Component: () => JSX.Element }) => {
   return (
     <>
       <div className="navbar">
-        {VIEWS.map(([path, name]) => (
+        {VIEWS.filter(({ state }) => state === "ACTIVE").map(({ path, name }) => (
           <label
             key={name}
             onClick={() => {
@@ -62,7 +67,7 @@ export const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="*" element={<Navigate to="/" replace />} />
-          {VIEWS.map(([path, _, Component]) => (
+          {VIEWS.map(({ path, component: Component }) => (
             <Route path={path} element={<WithNavbar Component={Component} />} />
           ))}
         </Routes>
