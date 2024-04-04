@@ -39,15 +39,22 @@ const getTestProduct = (): Product => ({
   files: [],
   keywords: ["beginner friendly"],
   duration: Math.round(30 + Math.random() * 30), // minutes
-  thumbnails: ["https://amerooniedesigns.com/wp-content/uploads/2021/12/paris-zipper-pouches.jpg"],
-  sizes: {
-    regular: [
-      Math.round(5 + Math.random() * 100) / 10,
-      Math.round(5 + Math.random() * 100) / 10,
-      Math.round(5 + Math.random() * 100) / 10,
-    ],
-  },
+  thumbnails: [],
+  sizes: [
+    {
+      alias: "regular",
+      dimensions: [
+        Math.round(5 + Math.random() * 100) / 10,
+        Math.round(5 + Math.random() * 100) / 10,
+        Math.round(5 + Math.random() * 100) / 10,
+      ],
+    },
+  ],
   tutorialLink: "https://www.youtube.com/watch?v=R_nu4COtBv4",
+  stitches: {},
+  containsNotches: false,
+  numMissingSeamAllowances: 0,
+  tips: "",
 });
 
 export const addTestProduct = () => addProduct(getTestProduct());

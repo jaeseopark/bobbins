@@ -57,6 +57,21 @@ const updateProduct = (p: Product): Promise<Product> =>
     .then((r) => r.json())
     .then(({ product }) => product);
 
+const uploadThumbnail = (p: Product, file: File): Promise<string> => {
+  const formData = new FormData()
+  formData.append('file', file, 'thumbnail.jpg')
+
+  return fetch(`/api/products/${p.id}/thumbnail`, {
+  method: "POST",
+  headers: {
+    Accept: "application/json",
+    // "Content-Type": "multipart/form-data",
+  },
+  body: formData,
+})
+  .then((r) => r.json())
+  .then(({ path }) => path);}
+
 const ask = (payload: { question: string; log?: ChatLogEntry[] }): Promise<{ answer: string; log: ChatLogEntry[] }> =>
   fetch("/api/ask", {
     method: "POST",
@@ -71,5 +86,6 @@ export default {
   getProducts,
   addProduct,
   updateProduct,
+  uploadThumbnail,
   ask,
 };

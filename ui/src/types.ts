@@ -22,9 +22,6 @@ export type Product = {
   tutorialLink: string;
   containsNotches: boolean;
   numMissingSeamAllowances: number;
-  seamAllowance: number;
-  topStitch: number;
-  basteStitch: number;
   tips: string;
 };
 

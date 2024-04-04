@@ -1,6 +1,6 @@
 from typing import Annotated, Any, Dict, List
 from pdf import generate_user_guide
-from fastapi import FastAPI, Path
+from fastapi import FastAPI, Path, UploadFile
 from fastapi.responses import FileResponse
 from starlette.responses import JSONResponse
 from pydantic import BaseModel
@@ -54,14 +54,37 @@ def update_product(product_id: Annotated[str, Path(title="The ID of the product 
 
 @fastapi_app.get("/products/{product_id}/user_guide", response_class=FileResponse)
 def get_user_guide(product_id: str):
-    product = db.get_product(product_id)
+    product = db.get_product(product_id or "")
 
-    if not product_id:
+    if not product:
         return JSONResponse(status_code=400)
 
     pdf_path = generate_user_guide(product)
-
     return pdf_path
+
+
+@fastapi_app.post("/products/{product_id}/thumbnail")
+def upload_thumbnail(product_id: str, file: UploadFile):
+    product = db.get_product(product_id or "")
+
+    if not product:
+        return JSONResponse(status_code=400)
+    
+    # TODO: only support jpg???
+    local_path = f"/data/products/{product_id}-thumbnail.jpg"
+    return_path = f"/product-assets/{product_id}-thumbnail.jpg"
+
+    try:
+        contents = file.file.read()
+        with open(local_path, 'wb+') as f:
+            f.write(contents)
+    except Exception as e:
+        print(e)
+    finally:
+        file.file.close()
+
+    return dict(path=return_path)
+
 
 @fastapi_app.post("/ask")
 def ask(payload: Dict[Any, Any]):

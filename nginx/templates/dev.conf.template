@@ -26,4 +26,9 @@ server {
         rewrite /template-assets/(.*) /$1 break;
         root /templates;
     }
+
+    location /product-assets/ {
+        rewrite /product-assets/(.*) /$1 break;
+        root /products;
+    }
 }

@@ -1,5 +1,5 @@
 import { Product } from "../types";
-import { CopyIcon, DownloadIcon, EditIcon } from "@chakra-ui/icons";
+import { ArrowUpIcon, CopyIcon, DownloadIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Card,
   CardBody,
@@ -21,9 +21,10 @@ import { cmToInchString } from "../utilities/numbers";
 import ProductEditView, { SubmitResponse } from "./ProductEditView";
 import { updateProduct } from "../state";
 import { DESC_POINT_SYMBOL } from "../utilities/settings";
+import { useRef } from "preact/hooks";
+import apiclient from "../apiclient";
 
-// TODO: change the default URL
-const DEFAULT_THUMBNAIL_URL = "https://i.etsystatic.com/46820714/r/il/04b528/5574088154/il_1588xN.5574088154_pcd7.jpg";
+const DEFAULT_THUMBNAIL_URL = "https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg";
 
 const getDescription = (product: Product) => {
   const getSizeStrings = (): string[] => {
@@ -63,6 +64,7 @@ const getDescription = (product: Product) => {
 const ProductPreviewCard = ({ product }: { product: Product }) => {
   const toast = useToast();
   const { isOpen: isEditorModalOpen, onOpen: openEditorModal, onClose: closeEditorModal } = useDisclosure();
+  const thumbnailFile = useRef<HTMLInputElement | null>(null);
 
   const getFirstThumbnailUrl = (): string => {
     if (!product.thumbnails || product.thumbnails.length === 0) return DEFAULT_THUMBNAIL_URL;
@@ -84,6 +86,31 @@ const ProductPreviewCard = ({ product }: { product: Product }) => {
     window.open(`/api/products/${product.id}/user_guide`, "_blank").focus();
   };
 
+  const uploadThumbnail = (event: any) => {
+    const file = event.target.files[0];
+    apiclient
+      .uploadThumbnail(product, file)
+      .then((path) => updateProduct({ ...product, thumbnails: [path] }))
+      .then(() =>
+        toast({
+          title: product.name,
+          description: "Thumbnail was uploaded successully.",
+          status: "success",
+          duration: 1500,
+          isClosable: true,
+        }),
+      )
+      .catch(() =>
+        toast({
+          title: "Error",
+          description: "Something went wrong.",
+          status: "error",
+          duration: 1500,
+          isClosable: true,
+        }),
+      );
+  };
+
   return (
     <>
       <Card maxW="sm">
@@ -94,6 +121,16 @@ const ProductPreviewCard = ({ product }: { product: Product }) => {
               <Heading size="md">{product.name}</Heading>
               <IconButton aria-label="Edit this product" icon={<EditIcon />} onClick={openEditorModal} />
             </HStack>
+            <input type="file" id="file" ref={thumbnailFile} style={{ display: "none" }} onChange={uploadThumbnail} />
+            <Button
+              leftIcon={<ArrowUpIcon />}
+              onClick={() => thumbnailFile.current?.click()}
+              variant="solid"
+              colorScheme="blue"
+              size="sm"
+            >
+              Upload thumbnail
+            </Button>
             <Button leftIcon={<DownloadIcon />} onClick={openUserGuide} variant="solid" colorScheme="blue" size="sm">
               User guide
             </Button>
