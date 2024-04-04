@@ -1,5 +1,7 @@
 import { Product, ChatLogEntry } from "./types";
 
+const MAX_NUM_TURNS = 5;
+
 // TODO migrate to @sanitized in the backend code base
 const sanitizeSizes = (p: Product) => {
   if (!Array.isArray(p.sizes) && typeof p.sizes === "object") {
@@ -79,7 +81,7 @@ const ask = (payload: { question: string; log?: ChatLogEntry[] }): Promise<{ ans
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({question: payload.question, log: payload.log?.slice(-MAX_NUM_TURNS)}),
   }).then((r) => r.json());
 
 export default {

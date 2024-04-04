@@ -1,3 +1,4 @@
+import { signal, useSignal } from "@preact/signals";
 import {
   MinChatUiProvider,
   MainContainer,
@@ -6,38 +7,44 @@ import {
   MessageList,
   MessageHeader,
 } from "@minchat/react-chat-ui";
-import apiclient from "../../apiclient";
-import { signal, useSignal } from "@preact/signals";
 import MessageType from "@minchat/react-chat-ui/dist/types/MessageType";
+import apiclient from "../../apiclient";
+import { ChatLogEntry } from "../../types";
 
 import "./Chat.scss";
 
-const sigMessages = signal<MessageType[]>([]);
+const sigMessages = signal<ChatLogEntry[]>([]);
 
-const getUpdatedMessageArray = (messages: MessageType[], user: string, message: string): MessageType[] => {
+const getUpdatedMessageArray = (messages: ChatLogEntry[], role: string, message: string): ChatLogEntry[] => {
   return [
     ...messages,
     {
-      text: message,
-      user: {
-        id: user,
-        name: user,
-      },
+      content: message,
+      role
     },
   ];
 };
+
+const convert = (messages: ChatLogEntry[]): MessageType[] => messages.map(({role, content}) => ({
+  text: content,
+  user: {
+    id: role,
+    name: role
+  }
+}));
 
 const Chat = () => {
   const sigShowTypingIndicator = useSignal(false);
 
   const handleSend = (question: string) => {
     sigShowTypingIndicator.value = true;
-    sigMessages.value = getUpdatedMessageArray(sigMessages.value, "HUMAN", question);
+    const log = [...sigMessages.value];
+    sigMessages.value = getUpdatedMessageArray(sigMessages.value, "user", question);
 
     apiclient
-      .ask({ question })
+      .ask({ question, log })
       .then(({ answer }) => {
-        sigMessages.value = getUpdatedMessageArray(sigMessages.value, "BOT", answer);
+        sigMessages.value = getUpdatedMessageArray(sigMessages.value, "system", answer);
       })
       .finally(() => {
         sigShowTypingIndicator.value = false;
@@ -51,8 +58,8 @@ const Chat = () => {
           <MessageHeader />
           <MessageList
             showTypingIndicator={sigShowTypingIndicator.value}
-            currentUserId="HUMAN"
-            messages={sigMessages.value}
+            currentUserId="user"
+            messages={convert(sigMessages.value)}
           />
           <MessageInput onSendMessage={handleSend} showSendButton placeholder="Type message here" />
         </MessageContainer>
