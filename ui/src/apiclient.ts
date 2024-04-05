@@ -59,20 +59,34 @@ const updateProduct = (p: Product): Promise<Product> =>
     .then((r) => r.json())
     .then(({ product }) => product);
 
+const deleteProduct = (productId: string): Promise<void> =>
+  fetch(`/api/products/${productId}`, {
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+  }).then((r) => {
+    if (r.status >= 400) {
+      throw new Error("Delete failed w/ status code >= 400");
+    }
+  });
+
 const uploadThumbnail = (p: Product, file: File): Promise<string> => {
-  const formData = new FormData()
-  formData.append('file', file, 'thumbnail.jpg')
+  const formData = new FormData();
+  formData.append("file", file, "thumbnail.jpg");
 
   return fetch(`/api/products/${p.id}/thumbnail`, {
-  method: "POST",
-  headers: {
-    Accept: "application/json",
-    // "Content-Type": "multipart/form-data",
-  },
-  body: formData,
-})
-  .then((r) => r.json())
-  .then(({ path }) => path);}
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      // "Content-Type": "multipart/form-data",
+    },
+    body: formData,
+  })
+    .then((r) => r.json())
+    .then(({ path }) => path);
+};
 
 const ask = (payload: { question: string; log?: ChatLogEntry[] }): Promise<{ answer: string; log: ChatLogEntry[] }> =>
   fetch("/api/ask", {
@@ -81,13 +95,14 @@ const ask = (payload: { question: string; log?: ChatLogEntry[] }): Promise<{ ans
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({question: payload.question, log: payload.log?.slice(-MAX_NUM_TURNS)}),
+    body: JSON.stringify({ question: payload.question, log: payload.log?.slice(-MAX_NUM_TURNS) }),
   }).then((r) => r.json());
 
 export default {
   getProducts,
   addProduct,
   updateProduct,
+  deleteProduct,
   uploadThumbnail,
   ask,
 };

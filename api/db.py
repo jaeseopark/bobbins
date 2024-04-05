@@ -45,6 +45,10 @@ class Database(ABC):
     def update_product(self, p: dict) -> dict:
         pass
 
+    @abstractmethod
+    def delete_product(self, product_id: str):
+        pass
+
 
 def _dict_factory(cursor, row):
     dct = {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
@@ -92,3 +96,9 @@ class SqliteDatabase(Database):
             )
             conn.execute(stmt, params)
         return p
+
+    def delete_product(self, product_id: str):
+        with self.conn as conn:
+            stmt = "DELETE from products WHERE id = :id"
+            params = dict(id=product_id)
+            conn.execute(stmt, params)

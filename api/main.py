@@ -52,6 +52,15 @@ def update_product(product_id: Annotated[str, Path(title="The ID of the product 
     return dict(product=updated)
 
 
+@fastapi_app.delete("/products/{product_id}")
+def update_product(product_id: Annotated[str, Path(title="The ID of the product to update")]):
+    db.delete_product(product_id)
+    return JSONResponse(
+        status_code=200,
+        content=dict(message="Success")
+    )
+
+
 @fastapi_app.get("/products/{product_id}/user_guide", response_class=FileResponse)
 def get_user_guide(product_id: str):
     product = db.get_product(product_id or "")
