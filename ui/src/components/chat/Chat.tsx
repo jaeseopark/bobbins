@@ -20,18 +20,19 @@ const getUpdatedMessageArray = (messages: ChatLogEntry[], role: string, message:
     ...messages,
     {
       content: message,
-      role
+      role,
     },
   ];
 };
 
-const convert = (messages: ChatLogEntry[]): MessageType[] => messages.map(({role, content}) => ({
-  text: content,
-  user: {
-    id: role,
-    name: role
-  }
-}));
+const convert = (messages: ChatLogEntry[]): MessageType[] =>
+  messages.map(({ role, content }) => ({
+    text: content,
+    user: {
+      id: role,
+      name: role,
+    },
+  }));
 
 const Chat = () => {
   const sigShowTypingIndicator = useSignal(false);
