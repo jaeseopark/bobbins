@@ -96,12 +96,7 @@ const ProductEditView = ({
   const sigMaterials = useSignal(product?.materials || []);
   const sigDuration = useSignal(product?.duration || 30);
   const sigStitches = useSignal(
-    product?.stitches || {
-      seamAllowance: 1,
-      secondSeamAllowance: 0,
-      topStitch: 0.2,
-      basteStitch: 0.2,
-    },
+    product?.stitches || {},
   );
   const sigSizes = useSignal(product?.sizes || []);
   const sigTutorialLink = useSignal(product?.tutorialLink || "https://youtube.com/");
@@ -270,7 +265,7 @@ const ProductEditView = ({
               <NumberInput
                 size="md"
                 maxW={24}
-                value={sigStitches.value.seamAllowance}
+                value={sigStitches.value.seamAllowance || 1}
                 onChange={(_, value) => (sigStitches.value = { ...sigStitches.value, seamAllowance: value })}
                 allowMouseWheel
                 min={0.1}
@@ -287,7 +282,7 @@ const ProductEditView = ({
               <NumberInput
                 size="md"
                 maxW={24}
-                value={sigStitches.value.secondSeamAllowance}
+                value={sigStitches.value.secondSeamAllowance || 0}
                 onChange={(_, value) => (sigStitches.value = { ...sigStitches.value, secondSeamAllowance: value })}
                 allowMouseWheel
                 min={0}
@@ -304,7 +299,7 @@ const ProductEditView = ({
               <NumberInput
                 size="md"
                 maxW={24}
-                value={sigStitches.value.topStitch}
+                value={sigStitches.value.topStitch || 0.2}
                 onChange={(_, value) => (sigStitches.value = { ...sigStitches.value, topStitch: value })}
                 allowMouseWheel
                 min={0.1}
@@ -321,7 +316,7 @@ const ProductEditView = ({
               <NumberInput
                 size="md"
                 maxW={24}
-                value={sigStitches.value.basteStitch}
+                value={sigStitches.value.basteStitch || 0.2}
                 onChange={(_, value) => (sigStitches.value = { ...sigStitches.value, basteStitch: value })}
                 allowMouseWheel
                 min={0.1}
