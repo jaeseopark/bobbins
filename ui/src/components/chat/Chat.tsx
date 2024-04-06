@@ -52,9 +52,12 @@ const Chat = () => {
       });
   };
 
+  // note: 20 px padding all around and the nav bar is 60 px tall.
+  const height = "calc(100vh - 100px)"
+
   return (
     <MinChatUiProvider>
-      <MainContainer style={{ height: "calc(100vh - 5em)" }}>
+      <MainContainer style={{ height }}>
         <MessageContainer>
           <MessageHeader />
           <MessageList

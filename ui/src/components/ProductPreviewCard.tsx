@@ -24,7 +24,10 @@ import { DESC_POINT_SYMBOL } from "../utilities/settings";
 import { useRef } from "preact/hooks";
 import apiclient from "../apiclient";
 
+import "./ProductPreviewCard.scss";
+
 const DEFAULT_THUMBNAIL_URL = "https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg";
+
 
 const getDescription = (product: Product) => {
   const getSizeStrings = (): string[] => {
@@ -115,7 +118,7 @@ const ProductPreviewCard = ({ product }: { product: Product }) => {
     <>
       <Card maxW="sm">
         <CardBody>
-          <Image src={getFirstThumbnailUrl()} alt="Green double couch with wooden legs" borderRadius="lg" />
+          <img className="bobbins-thmb" src={getFirstThumbnailUrl()} alt="Product image" />
           <Stack mt="6" spacing="3">
             <HStack>
               <Heading size="md">{product.name}</Heading>

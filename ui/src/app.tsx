@@ -1,7 +1,6 @@
 import ProductGridView from "./components/ProductGridView";
-import { ChakraProvider, Spinner } from "@chakra-ui/react";
-import ProductListToolbar from "./components/ProductListToolbar";
-import { sigIsLoading } from "./state";
+import { Button, ChakraProvider, Heading, Spacer, Spinner } from "@chakra-ui/react";
+import { addTestProduct, sigIsLoading } from "./state";
 import { BrowserRouter, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 
 import UserGuideTemplate from "./components/UserGuideTemplate";
@@ -11,6 +10,8 @@ import CsMessageComposer from "./components/CsMessageComposer";
 import "./app.scss";
 import Chat from "./components/chat/Chat";
 import UserSettings from "./components/UserSettings";
+import ConversionsWithPopover from "./components/ConversionsWithPopover";
+import { SmallAddIcon } from "@chakra-ui/icons";
 
 const Inventory = () => {
   if (sigIsLoading.value) {
@@ -19,7 +20,6 @@ const Inventory = () => {
 
   return (
     <div className="inventory">
-      <ProductListToolbar />
       <ProductGridView />
     </div>
   );
@@ -43,21 +43,29 @@ const VIEWS: View[] = [
 const WithNavbar = ({ Component }: { Component: () => JSX.Element }) => {
   const navigate = useNavigate();
   return (
-    <>
-      <div className="navbar">
+    <div className="bobbins-padded-view">
+      <div className="bobbins-navbar">
+        <Heading>Bobbins</Heading>
+        <Spacer />
         {VIEWS.filter(({ state }) => state === "ACTIVE").map(({ path, name }) => (
-          <label
+          <Heading size="md"
+            className="path"
             key={name}
             onClick={() => {
               navigate(path);
             }}
           >
             {name}
-          </label>
+          </Heading>
         ))}
+        <Spacer />
+        <ConversionsWithPopover buttonSize="sm" />
+        <Button onClick={addTestProduct} size="sm" leftIcon={<SmallAddIcon />}>Product</Button>
       </div>
-      <Component />
-    </>
+      <div className="bobbins-content">
+        <Component />
+      </div>
+    </div>
   );
 };
 

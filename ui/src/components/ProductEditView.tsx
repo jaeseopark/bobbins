@@ -95,9 +95,7 @@ const ProductEditView = ({
   const sigKeywords = useSignal(product?.keywords.join("\n") || "");
   const sigMaterials = useSignal(product?.materials || []);
   const sigDuration = useSignal(product?.duration || 30);
-  const sigStitches = useSignal(
-    product?.stitches || {},
-  );
+  const sigStitches = useSignal(product?.stitches || {});
   const sigSizes = useSignal(product?.sizes || []);
   const sigTutorialLink = useSignal(product?.tutorialLink || "https://youtube.com/");
   const sigNumMissingSeamAllowances = useSignal(product?.numMissingSeamAllowances || 0);
