@@ -1,7 +1,8 @@
+import { Button } from "@chakra-ui/button";
+import { Grid as ChakraGrid, HStack, Heading } from "@chakra-ui/layout";
 import { ReactNode } from "react";
 
-import { Grid as ChakraGrid, HStack, Heading } from "@chakra-ui/layout";
-import { Button } from "@chakra-ui/button";
+import "./UserGuideTemplate.scss";
 
 const YT_ICON_PATH = "/template-assets/images/youtube-logo.svg";
 const CONTACT_YT_ICON_PATH = "/template-assets/images/contact-youtube.svg";
@@ -14,8 +15,6 @@ const CUT_ICON_PATH = "/template-assets/images/scissors.svg";
 const MARKER_ICON_PATH = "/template-assets/images/marker.svg";
 const MEASURE_ICON_PATH = "/template-assets/images/measure.svg";
 const NEEDLE_ICON_PATH = "/template-assets/images/needle.svg";
-
-import "./UserGuideTemplate.scss";
 
 const DEFAULT_GRID_COLUMN_COUNT = 3;
 

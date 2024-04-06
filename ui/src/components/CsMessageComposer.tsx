@@ -1,6 +1,7 @@
 import { CopyIcon, DeleteIcon } from "@chakra-ui/icons";
 import { Button, Checkbox, useToast } from "@chakra-ui/react";
 import { useState } from "preact/hooks";
+
 import "./CsMessageComposer.scss";
 
 const MESSAGES: string[] = [

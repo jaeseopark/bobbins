@@ -1,25 +1,25 @@
 import {
-  Popover,
-  PopoverTrigger,
   Button,
-  PopoverContent,
+  Popover,
   PopoverArrow,
-  PopoverHeader,
   PopoverBody,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
 } from "@chakra-ui/react";
+
 import Conversions from "./Conversions";
 
-import "./ConversionsWithPopover.scss"
+import "./ConversionsWithPopover.scss";
 
-const CalcIcon = () => (
-  <div className="calc-icon" />
-);
+const CalcIcon = () => <div className="calc-icon" />;
 
-
-const WithPopover = ({buttonSize}: {buttonSize?: string}) => (
+const WithPopover = ({ buttonSize }: { buttonSize?: string }) => (
   <Popover>
     <PopoverTrigger>
-      <Button leftIcon={<CalcIcon />} size={buttonSize}>Convert</Button>
+      <Button leftIcon={<CalcIcon />} size={buttonSize}>
+        Convert
+      </Button>
     </PopoverTrigger>
     <PopoverContent>
       <PopoverArrow />

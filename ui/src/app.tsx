@@ -1,17 +1,18 @@
-import ProductGridView from "./components/ProductGridView";
+import { SmallAddIcon } from "@chakra-ui/icons";
 import { Button, ChakraProvider, Heading, Spacer, Spinner } from "@chakra-ui/react";
-import { addTestProduct, sigIsLoading } from "./state";
+import { JSX } from "preact/jsx-runtime";
 import { BrowserRouter, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 
-import UserGuideTemplate from "./components/UserGuideTemplate";
-import { JSX } from "preact/jsx-runtime";
+import { addTestProduct, sigIsLoading } from "./state";
+
+import Chat from "./components/Chat";
+import ConversionsWithPopover from "./components/ConversionsWithPopover";
 import CsMessageComposer from "./components/CsMessageComposer";
+import ProductGridView from "./components/ProductGridView";
+import UserGuideTemplate from "./components/UserGuideTemplate";
+import UserSettings from "./components/UserSettings";
 
 import "./app.scss";
-import Chat from "./components/chat/Chat";
-import UserSettings from "./components/UserSettings";
-import ConversionsWithPopover from "./components/ConversionsWithPopover";
-import { SmallAddIcon } from "@chakra-ui/icons";
 
 const Inventory = () => {
   if (sigIsLoading.value) {
@@ -48,7 +49,8 @@ const WithNavbar = ({ Component }: { Component: () => JSX.Element }) => {
         <Heading>Bobbins</Heading>
         <Spacer />
         {VIEWS.filter(({ state }) => state === "ACTIVE").map(({ path, name }) => (
-          <Heading size="md"
+          <Heading
+            size="md"
             className="path"
             key={name}
             onClick={() => {
@@ -60,7 +62,9 @@ const WithNavbar = ({ Component }: { Component: () => JSX.Element }) => {
         ))}
         <Spacer />
         <ConversionsWithPopover buttonSize="sm" />
-        <Button onClick={addTestProduct} size="sm" leftIcon={<SmallAddIcon />}>Product</Button>
+        <Button onClick={addTestProduct} size="sm" leftIcon={<SmallAddIcon />}>
+          Product
+        </Button>
       </div>
       <div className="bobbins-content">
         <Component />

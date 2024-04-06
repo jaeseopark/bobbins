@@ -1,5 +1,7 @@
-import { sigProducts } from "../state";
 import { SimpleGrid } from "@chakra-ui/react";
+
+import { sigProducts } from "../state";
+
 import ProductPreviewCard from "./ProductPreviewCard";
 
 import "./ProductGrid.scss";

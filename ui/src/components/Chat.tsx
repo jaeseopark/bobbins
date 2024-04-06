@@ -1,15 +1,17 @@
-import { signal, useSignal } from "@preact/signals";
 import {
-  MinChatUiProvider,
   MainContainer,
-  MessageInput,
   MessageContainer,
-  MessageList,
   MessageHeader,
+  MessageInput,
+  MessageList,
+  MinChatUiProvider,
 } from "@minchat/react-chat-ui";
 import MessageType from "@minchat/react-chat-ui/dist/types/MessageType";
-import apiclient from "../../apiclient";
-import { ChatLogEntry } from "../../types";
+import { signal, useSignal } from "@preact/signals";
+
+import { ChatLogEntry } from "../types";
+
+import apiclient from "../apiclient";
 
 import "./Chat.scss";
 
@@ -53,7 +55,7 @@ const Chat = () => {
   };
 
   // note: 20 px padding all around and the nav bar is 60 px tall.
-  const height = "calc(100vh - 100px)"
+  const height = "calc(100vh - 100px)";
 
   return (
     <MinChatUiProvider>

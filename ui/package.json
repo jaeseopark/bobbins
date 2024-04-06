@@ -29,6 +29,7 @@
   "devDependencies": {
     "@preact/preset-vite": "^2.7.0",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
+    "prettier": "^3.2.5",
     "sass": "^1.69.5",
     "typescript": "^5.2.2",
     "vite": "^5.0.8"

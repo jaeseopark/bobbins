@@ -1,7 +1,9 @@
 import { signal } from "@preact/signals";
-import { Product } from "./types";
-import { v4 as uuidv4 } from "uuid";
 import getRandomName from "node-random-name";
+import { v4 as uuidv4 } from "uuid";
+
+import { Product } from "./types";
+
 import apiclient from "./apiclient";
 
 export const sigIsLoading = signal(true);

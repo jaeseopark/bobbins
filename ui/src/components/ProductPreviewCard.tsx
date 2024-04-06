@@ -1,33 +1,36 @@
-import { Product } from "../types";
 import { ArrowUpIcon, CopyIcon, DownloadIcon, EditIcon } from "@chakra-ui/icons";
 import {
+  Button,
   Card,
   CardBody,
-  Image,
-  Button,
-  Heading,
-  Stack,
   HStack,
+  Heading,
   IconButton,
-  useToast,
   Modal,
-  ModalOverlay,
-  ModalContent,
   ModalBody,
+  ModalContent,
+  ModalOverlay,
+  Stack,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
-import { capitalizeFirstLetter, getDimensionsAsString } from "../utilities/strings";
-import { cmToInchString } from "../utilities/numbers";
-import ProductEditView, { SubmitResponse } from "./ProductEditView";
-import { updateProduct } from "../state";
-import { DESC_POINT_SYMBOL } from "../utilities/settings";
 import { useRef } from "preact/hooks";
+
+import { Product } from "../types";
+
+import { updateProduct } from "../state";
+
 import apiclient from "../apiclient";
+
+import { cmToInchString } from "../utilities/numbers";
+import { DESC_POINT_SYMBOL } from "../utilities/settings";
+import { capitalizeFirstLetter, getDimensionsAsString } from "../utilities/strings";
+
+import ProductEditView, { SubmitResponse } from "./ProductEditView";
 
 import "./ProductPreviewCard.scss";
 
 const DEFAULT_THUMBNAIL_URL = "https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg";
-
 
 const getDescription = (product: Product) => {
   const getSizeStrings = (): string[] => {

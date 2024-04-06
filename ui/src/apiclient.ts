@@ -1,4 +1,4 @@
-import { Product, ChatLogEntry } from "./types";
+import { ChatLogEntry, Product } from "./types";
 
 const MAX_NUM_TURNS = 5;
 

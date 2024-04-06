@@ -1,25 +1,27 @@
-import { Signal, useSignal } from "@preact/signals";
+import { ChatIcon, DeleteIcon } from "@chakra-ui/icons";
 import {
+  Button,
+  ButtonGroup,
+  Checkbox,
   FormControl,
   FormLabel,
   Input,
-  ButtonGroup,
-  Button,
-  Textarea,
-  useToast,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput,
   NumberInputField,
   NumberInputStepper,
-  Checkbox,
   Select,
+  Textarea,
+  useToast,
 } from "@chakra-ui/react";
-import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
+import { Signal, useSignal } from "@preact/signals";
 import { v4 as uuidv4 } from "uuid";
-import { ChatIcon, DeleteIcon } from "@chakra-ui/icons";
-import apiclient from "../apiclient";
+
 import { Product } from "../types";
+
+import apiclient from "../apiclient";
 
 import "./ProductEditView.scss";
 

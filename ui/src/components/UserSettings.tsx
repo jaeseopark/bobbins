@@ -1,4 +1,5 @@
 import { Input, Table, Tbody, Td, Tr } from "@chakra-ui/react";
+
 import { DESC_POINT_SYMBOL } from "../utilities/settings";
 
 const UserSettings = () => {

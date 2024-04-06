@@ -1,6 +1,6 @@
-import { Inch } from "../types";
-
 import Fraction from "fraction.js";
+
+import { Inch } from "../types";
 
 const FRACTION_MAP = {
   "1/4": "¼",

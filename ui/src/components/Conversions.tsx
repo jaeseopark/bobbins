@@ -19,11 +19,12 @@ import {
   Thead,
   Tr,
 } from "@chakra-ui/react";
-import { cmToInchString } from "../utilities/numbers";
 import { signal } from "@preact/signals";
+import { useState } from "preact/hooks";
+
+import { cmToInchString } from "../utilities/numbers";
 
 import "./Conversions.scss";
-import { useState } from "preact/hooks";
 
 const SHOULD_SHOW_TABLE = false;
 const DEFAULT_START = 0;
