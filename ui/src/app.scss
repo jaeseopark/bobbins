@@ -10,8 +10,13 @@
   cursor: pointer;
 }
 
+.path:hover {
+  color: var(--chakra-colors-purple-500);
+}
+
 .bobbins-padded-view {
   padding: 20px;
   width: 100vw;
   height: 100vh;
+  overflow-x: hidden;
 }
