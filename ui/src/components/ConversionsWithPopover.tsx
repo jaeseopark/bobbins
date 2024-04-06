@@ -17,7 +17,7 @@ const CalcIcon = () => <div className="calc-icon" />;
 const WithPopover = ({ buttonSize }: { buttonSize?: string }) => (
   <Popover>
     <PopoverTrigger>
-      <Button leftIcon={<CalcIcon />} size={buttonSize}>
+      <Button leftIcon={<CalcIcon />} size={buttonSize}  colorScheme="purple">
         Convert
       </Button>
     </PopoverTrigger>

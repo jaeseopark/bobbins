@@ -46,7 +46,7 @@ const WithNavbar = ({ Component }: { Component: () => JSX.Element }) => {
   return (
     <div className="bobbins-padded-view">
       <div className="bobbins-navbar">
-        <Heading>Bobbins</Heading>
+        <Heading color="var(--chakra-colors-purple-400)">Bobbins</Heading>
         <Spacer />
         {VIEWS.filter(({ state }) => state === "ACTIVE").map(({ path, name }) => (
           <Heading
@@ -62,7 +62,7 @@ const WithNavbar = ({ Component }: { Component: () => JSX.Element }) => {
         ))}
         <Spacer />
         <ConversionsWithPopover buttonSize="sm" />
-        <Button onClick={addTestProduct} size="sm" leftIcon={<SmallAddIcon />}>
+        <Button onClick={addTestProduct} size="sm" leftIcon={<SmallAddIcon /> }  colorScheme="purple">
           Product
         </Button>
       </div>
