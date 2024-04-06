@@ -132,17 +132,17 @@ const ProductPreviewCard = ({ product }: { product: Product }) => {
               leftIcon={<ArrowUpIcon />}
               onClick={() => thumbnailFile.current?.click()}
               variant="solid"
-              colorScheme="blue"
+              colorScheme="purple"
               size="sm"
             >
               Upload thumbnail
             </Button>
-            <Button leftIcon={<DownloadIcon />} onClick={openUserGuide} variant="solid" colorScheme="blue" size="sm">
+            <Button leftIcon={<DownloadIcon />} onClick={openUserGuide} variant="solid" colorScheme="purple" size="sm">
               User guide
             </Button>
             <Button
               variant="solid"
-              colorScheme="blue"
+              colorScheme="purple"
               size="sm"
               leftIcon={<CopyIcon />}
               onClick={() => {

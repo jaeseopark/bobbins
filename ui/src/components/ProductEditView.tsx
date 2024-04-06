@@ -493,7 +493,7 @@ const ProductEditView = ({
       </FormControl>
       <ButtonGroup marginTop=".75em" marginBottom=".75em">
         <Button
-          colorScheme="blue"
+          colorScheme="purple"
           mr={3}
           onClick={() => {
             let updatedProduct: Product;
