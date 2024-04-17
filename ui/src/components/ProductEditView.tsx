@@ -265,7 +265,7 @@ const ProductEditView = ({
               <NumberInput
                 size="md"
                 maxW={24}
-                value={sigStitches.value.seamAllowance || 1}
+                value={sigStitches.value.seamAllowance || 0}
                 onChange={(_, value) => (sigStitches.value = { ...sigStitches.value, seamAllowance: value })}
                 allowMouseWheel
                 min={0.1}
@@ -299,7 +299,7 @@ const ProductEditView = ({
               <NumberInput
                 size="md"
                 maxW={24}
-                value={sigStitches.value.topStitch || 0.2}
+                value={sigStitches.value.topStitch || 0}
                 onChange={(_, value) => (sigStitches.value = { ...sigStitches.value, topStitch: value })}
                 allowMouseWheel
                 min={0.1}
@@ -316,7 +316,7 @@ const ProductEditView = ({
               <NumberInput
                 size="md"
                 maxW={24}
-                value={sigStitches.value.basteStitch || 0.2}
+                value={sigStitches.value.basteStitch || 0}
                 onChange={(_, value) => (sigStitches.value = { ...sigStitches.value, basteStitch: value })}
                 allowMouseWheel
                 min={0.1}
