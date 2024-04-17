@@ -14,7 +14,7 @@ def askgpt(question, chat_log) -> Tuple[str, list]:
     chat_log.append({'role': 'user', 'content': question})
     completion = client.chat.completions.create(
         messages=chat_log,
-        model="gpt-3.5-turbo",
+        model="gpt-4-turbo",
     )
     answer = completion.choices[0].message.content
     chat_log.append({'role': 'assistant', 'content': answer})
