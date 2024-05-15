@@ -24,6 +24,7 @@
     "preact-compat": "^3.19.0",
     "react-router-dom": "^6.21.1",
     "react-social-icons": "^6.7.0",
+    "reconnecting-websocket": "^4.4.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

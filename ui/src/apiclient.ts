@@ -1,6 +1,16 @@
-import { ChatLogEntry, Product } from "./types";
+import ReconnectingWebSocket from "reconnecting-websocket";
+import { ChatLogEntry, Product, ProductLocalFileStat, WebsocketListener } from "./types";
 
-const MAX_NUM_TURNS = 5;
+const GPT_MAX_NUM_TURNS = 5;
+
+const WEBSOCKET_LISTENERS: WebsocketListener[] = [];
+
+if (localStorage.getItem("dev")) {
+  new ReconnectingWebSocket(`wss://${window.location.hostname}/api/ws`).onmessage = ({ data }) => {
+    const message = JSON.parse(data);
+    WEBSOCKET_LISTENERS.forEach(listener => listener(message));
+  };
+}
 
 // TODO migrate to @sanitized in the backend code base
 const sanitizeSizes = (p: Product) => {
@@ -95,8 +105,35 @@ const ask = (payload: { question: string; log?: ChatLogEntry[] }): Promise<{ ans
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ question: payload.question, log: payload.log?.slice(-MAX_NUM_TURNS) }),
+    body: JSON.stringify({ question: payload.question, log: payload.log?.slice(-GPT_MAX_NUM_TURNS) }),
   }).then((r) => r.json());
+
+const generateWrittenInstructions = (productId: string): Promise<void> => fetch(`/api/products/${productId}/transcribe`, {
+  method: "POST",
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  },
+}).then((r) => r.json());
+
+const getLocalFileStats = (productId: string): Promise<{ stats: ProductLocalFileStat[] }> => fetch(`/api/products/${productId}/stats`, {
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  }
+}).then((r) => r.json());
+
+const addWsListener = (listener: WebsocketListener) => {
+  WEBSOCKET_LISTENERS.push(listener);
+  console.log("Websocket listner added");
+};
+
+const removeWsListener = (listener: WebsocketListener) => {
+  const i = WEBSOCKET_LISTENERS.findIndex((listenreInArray) => listenreInArray === listener);
+  if (i >= 0) {
+    WEBSOCKET_LISTENERS.splice(i, 1);
+  }
+};
 
 export default {
   getProducts,
@@ -105,4 +142,8 @@ export default {
   deleteProduct,
   uploadThumbnail,
   ask,
+  generateWrittenInstructions,
+  addWsListener,
+  removeWsListener,
+  getLocalFileStats
 };

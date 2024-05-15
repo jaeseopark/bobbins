@@ -29,6 +29,7 @@ import { capitalizeFirstLetter, getDimensionsAsString } from "../utilities/strin
 import ProductEditView, { SubmitResponse } from "./ProductEditView";
 
 import "./ProductPreviewCard.scss";
+import WrittenInstructionView from "./WrittenInstructionView";
 
 const DEFAULT_THUMBNAIL_URL = "https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg";
 
@@ -71,6 +72,7 @@ const getDescription = (product: Product) => {
 const ProductPreviewCard = ({ product }: { product: Product }) => {
   const toast = useToast();
   const { isOpen: isEditorModalOpen, onOpen: openEditorModal, onClose: closeEditorModal } = useDisclosure();
+  const { isOpen: isWrittenInstructionModalOpen, onOpen: openWrittenInstructionModal, onClose: closeWrittenInstructionModal } = useDisclosure();
   const thumbnailFile = useRef<HTMLInputElement | null>(null);
 
   const getFirstThumbnailUrl = (): string => {
@@ -140,6 +142,9 @@ const ProductPreviewCard = ({ product }: { product: Product }) => {
             <Button leftIcon={<DownloadIcon />} onClick={openUserGuide} variant="solid" size="sm">
               User guide
             </Button>
+            {/* <Button leftIcon={<DownloadIcon />} onClick={openWrittenInstructionModal} variant="solid" size="sm">
+              Written instructions
+            </Button> */}
             <Button
               variant="solid"
               size="sm"
@@ -166,6 +171,14 @@ const ProductPreviewCard = ({ product }: { product: Product }) => {
         <ModalContent minWidth="750px">
           <ModalBody>
             <ProductEditView product={product} onSubmit={onChange} onCancel={closeEditorModal} />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+      <Modal isOpen={isWrittenInstructionModalOpen} onClose={closeWrittenInstructionModal}>
+        <ModalOverlay />
+        <ModalContent minWidth="750px">
+          <ModalBody>
+            <WrittenInstructionView product={product} onClose={closeWrittenInstructionModal} />
           </ModalBody>
         </ModalContent>
       </Modal>
