@@ -3,7 +3,7 @@
 
 ```bash
 docker-compose up --build -d
-docker-compose exec ui yarn add prettier --write .
+docker-compose exec ui npx yarn prettier --write .
 ```
 
 ## Production

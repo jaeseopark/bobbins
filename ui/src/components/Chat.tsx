@@ -67,7 +67,12 @@ const Chat = () => {
             currentUserId="user"
             messages={convert(sigMessages.value)}
           />
-          <MessageInput onSendMessage={handleSend} showAttachButton={false} showSendButton placeholder="Type message here" />
+          <MessageInput
+            onSendMessage={handleSend}
+            showAttachButton={false}
+            showSendButton
+            placeholder="Type message here"
+          />
         </MessageContainer>
       </MainContainer>
     </MinChatUiProvider>

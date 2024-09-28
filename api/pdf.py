@@ -4,11 +4,24 @@ import pdfkit
 TEMPLATE_DIR = "/app/templates"
 USER_GUIDE_TEMPLATE_PATH = "user_guide.html"
 USER_GUIDE_CSS_PATH = "user_guide.css"
+HTML_OPTIONS = {
+    # 'page-size': 'Custom',
+    'page-width': '172.72',  # =6.8 inches
+    'page-height': '223.52',  # =8.8 inches
+    'margin-top': '0.35in',
+    'margin-right': '0.35in',
+    'margin-bottom': '0.35in',
+    'margin-left': '0.35in',
+    'encoding': "UTF-8",
+    'no-outline': None,
+    'enable-local-file-access': True,
+    'dpi': 300
+}
 
 
 def get_template_params(product: dict):
     product = {**product}
-    
+
     stitches = product.get("stitches", dict())
     seam_allowance_description = f"{stitches.get('seamAllowance', '_')} cm away from the edge."
     second_seam_allowance = stitches.get("secondSeamAllowance", 0)
@@ -45,22 +58,23 @@ def generate_user_guide(product: dict) -> str:
     template = template_env.get_template(USER_GUIDE_TEMPLATE_PATH)
     html_content = template.render(**template_params)
 
-    options = {
-        # 'page-size': 'Custom',
-        'page-width': '172.72',  # =6.8 inches
-        'page-height': '223.52',  # =8.8 inches
-        'margin-top': '0.35in',
-        'margin-right': '0.35in',
-        'margin-bottom': '0.35in',
-        'margin-left': '0.35in',
-        'encoding': "UTF-8",
-        'no-outline': None,
-        'enable-local-file-access': True,
-        'dpi': 300
-    }
-
     product_id = product["id"]
     pdf_path = f"/data/products/{product_id}-user_guide.pdf"
-    pdfkit.from_string(html_content, pdf_path, options=options,
-                       css=f"{TEMPLATE_DIR}/{USER_GUIDE_CSS_PATH}")
+    generate_pdf_from_html(
+        html_content,
+        pdf_path,
+        options=HTML_OPTIONS,
+        css=f"{TEMPLATE_DIR}/{USER_GUIDE_CSS_PATH}"
+    )
     return pdf_path
+
+
+def generate_pdf_from_html(html: str, pdf_path: str, **kwargs):
+    """
+    Generates a PDF for the given HTML string
+    """
+    pdfkit.from_string(
+        html,
+        pdf_path,
+        **kwargs
+    )

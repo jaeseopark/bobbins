@@ -62,7 +62,7 @@ const WithNavbar = ({ Component }: { Component: () => JSX.Element }) => {
         ))}
         <Spacer />
         <ConversionsWithPopover buttonSize="sm" />
-        <Button onClick={addTestProduct} size="sm" leftIcon={<SmallAddIcon /> }  colorScheme="purple">
+        <Button onClick={addTestProduct} size="sm" leftIcon={<SmallAddIcon />} colorScheme="purple">
           Product
         </Button>
       </div>

@@ -30,7 +30,7 @@ export type ProductLocalFileStat = {
   size: number; // in bytes
   ctime: number;
   progress: number; // -1 or [0,1] where -1 indicates the missing file and 0...1 indicates the progress of a given task ex. downloading
-}
+};
 
 export type Inch = {
   decimal: number;
@@ -41,7 +41,7 @@ export type ChatLogEntry = { role: string; content: string };
 
 export type WebsocketMessage = {
   topic: string;
-  payload: object
+  payload: object;
 };
 
 export type WebsocketListener = (message: WebsocketMessage) => void;

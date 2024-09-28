@@ -29,7 +29,6 @@ import { capitalizeFirstLetter, getDimensionsAsString } from "../utilities/strin
 import ProductEditView, { SubmitResponse } from "./ProductEditView";
 
 import "./ProductPreviewCard.scss";
-import WrittenInstructionView from "./WrittenInstructionView";
 
 const DEFAULT_THUMBNAIL_URL = "https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg";
 
@@ -72,7 +71,6 @@ const getDescription = (product: Product) => {
 const ProductPreviewCard = ({ product }: { product: Product }) => {
   const toast = useToast();
   const { isOpen: isEditorModalOpen, onOpen: openEditorModal, onClose: closeEditorModal } = useDisclosure();
-  const { isOpen: isWrittenInstructionModalOpen, onOpen: openWrittenInstructionModal, onClose: closeWrittenInstructionModal } = useDisclosure();
   const thumbnailFile = useRef<HTMLInputElement | null>(null);
 
   const getFirstThumbnailUrl = (): string => {
@@ -80,7 +78,7 @@ const ProductPreviewCard = ({ product }: { product: Product }) => {
     return product.thumbnails[0];
   };
 
-  const onChange = async (updated: Product): Promise<SubmitResponse> => {
+  const handleProductChange = async (updated: Product): Promise<SubmitResponse> => {
     try {
       await updateProduct(updated);
       return "UPDATED";
@@ -131,12 +129,7 @@ const ProductPreviewCard = ({ product }: { product: Product }) => {
               <IconButton aria-label="Edit this product" icon={<EditIcon />} onClick={openEditorModal} />
             </HStack>
             <input type="file" id="file" ref={thumbnailFile} style={{ display: "none" }} onChange={uploadThumbnail} />
-            <Button
-              leftIcon={<ArrowUpIcon />}
-              onClick={() => thumbnailFile.current?.click()}
-              variant="solid"
-              size="sm"
-            >
+            <Button leftIcon={<ArrowUpIcon />} onClick={() => thumbnailFile.current?.click()} variant="solid" size="sm">
               Upload thumbnail
             </Button>
             <Button leftIcon={<DownloadIcon />} onClick={openUserGuide} variant="solid" size="sm">
@@ -170,15 +163,7 @@ const ProductPreviewCard = ({ product }: { product: Product }) => {
         <ModalOverlay />
         <ModalContent minWidth="750px">
           <ModalBody>
-            <ProductEditView product={product} onSubmit={onChange} onCancel={closeEditorModal} />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-      <Modal isOpen={isWrittenInstructionModalOpen} onClose={closeWrittenInstructionModal}>
-        <ModalOverlay />
-        <ModalContent minWidth="750px">
-          <ModalBody>
-            <WrittenInstructionView product={product} onClose={closeWrittenInstructionModal} />
+            <ProductEditView product={product} onSubmit={handleProductChange} onCancel={closeEditorModal} />
           </ModalBody>
         </ModalContent>
       </Modal>

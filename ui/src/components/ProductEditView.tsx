@@ -16,10 +16,10 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
-import { Signal, useSignal } from "@preact/signals";
+import { StateUpdater, useState } from "preact/hooks";
 import { v4 as uuidv4 } from "uuid";
 
-import { Product } from "../types";
+import { Product, Size } from "../types";
 
 import apiclient from "../apiclient";
 
@@ -42,8 +42,18 @@ const getIntroGenerationPrompt = (p: Product): string => {
     .join(" ");
 };
 
-const DimensionField = ({ sigSizes, i, k }: { k: number; sigSizes: Signal; i: number }) => {
-  const dimensions = sigSizes.value[i].dimensions;
+const DimensionField = ({
+  sizes,
+  sizeSetter,
+  i,
+  k,
+}: {
+  sizes: Size[];
+  sizeSetter: StateUpdater<Size[]>;
+  k: number;
+  i: number;
+}) => {
+  const dimensions = sizes[i].dimensions;
   return (
     <NumberInput
       allowMouseWheel
@@ -51,8 +61,8 @@ const DimensionField = ({ sigSizes, i, k }: { k: number; sigSizes: Signal; i: nu
       step={0.1}
       onChange={(_, value) => {
         dimensions[k] = value;
-        sigSizes.value[i].dimensions = dimensions;
-        sigSizes.value = [...sigSizes.value];
+        sizes[i].dimensions = dimensions;
+        sizeSetter((prevSizes) => prevSizes);
       }}
     >
       <NumberInputField />
@@ -60,17 +70,15 @@ const DimensionField = ({ sigSizes, i, k }: { k: number; sigSizes: Signal; i: nu
   );
 };
 
-const NumericField = ({ label, sig, ...rest }: { label: string; sig: Signal } & Record<string, any>) => (
+const NumericField = ({
+  value,
+  label,
+  setter,
+  ...rest
+}: { value: number; label: string; setter: StateUpdater<number> } & Record<string, any>) => (
   <>
     <FormLabel>{label}</FormLabel>
-    <NumberInput
-      size="md"
-      maxW={24}
-      value={sig.value}
-      onChange={(_, value) => (sig.value = value)}
-      allowMouseWheel
-      {...rest}
-    >
+    <NumberInput size="md" maxW={24} value={value} onChange={(_, value) => setter(value)} allowMouseWheel {...rest}>
       <NumberInputField />
       <NumberInputStepper>
         <NumberIncrementStepper />
@@ -90,19 +98,19 @@ const ProductEditView = ({
   onCancel: () => void;
 }) => {
   const toast = useToast();
-  const sigId = useSignal<string>(product?.id || uuidv4().toString());
-  const sigName = useSignal(product?.name || "New Product");
-  const sigDate = useSignal(product?.date || Date.now());
-  const sigIntroduction = useSignal(product?.introduction);
-  const sigKeywords = useSignal(product?.keywords.join("\n") || "");
-  const sigMaterials = useSignal(product?.materials || []);
-  const sigDuration = useSignal(product?.duration || 30);
-  const sigStitches = useSignal(product?.stitches || {});
-  const sigSizes = useSignal(product?.sizes || []);
-  const sigTutorialLink = useSignal(product?.tutorialLink || "https://youtube.com/");
-  const sigNumMissingSeamAllowances = useSignal(product?.numMissingSeamAllowances || 0);
-  const sigContainsNotches = useSignal(product?.containsNotches || true);
-  const sigTips = useSignal(product?.tips || "");
+  const [id] = useState<string>(product?.id || uuidv4().toString());
+  const [name, setName] = useState(product?.name || "New Product");
+  const [date, setDate] = useState(product?.date || Date.now());
+  const [introduction, setIntroduction] = useState(product?.introduction || "");
+  const [keywords, setKeywords] = useState(product?.keywords.join("\n") || "");
+  const [materials, setMaterials] = useState(product?.materials || []);
+  const [duration, setDuration] = useState(product?.duration || 30);
+  const [stitches, setStitches] = useState(product?.stitches || {});
+  const [sizes, setSizes] = useState(product?.sizes || []);
+  const [tutorialLink, setTutorialLink] = useState(product?.tutorialLink || "https://youtube.com/");
+  const [numMissingSeamAllowances, setNumMissingSeamAllowances] = useState(product?.numMissingSeamAllowances || 0);
+  const [containsNotches, setContainsNotches] = useState(product?.containsNotches || true);
+  const [tips, setTips] = useState(product?.tips || "");
 
   const handleSubmitResponse = (response: SubmitResponse) => {
     if (response === "FAILED") {
@@ -113,41 +121,41 @@ const ProductEditView = ({
   };
 
   const getSingularChangeHandler =
-    (sig: Signal): ((e: any) => void) =>
+    (setter: StateUpdater<any>): ((e: any) => void) =>
     ({ target: { value } }) => {
-      sig.value = value;
+      setter(value);
     };
 
   const getCheckboxChangeHandler =
-    (sig: Signal): ((e: any) => void) =>
+    (setter: StateUpdater<boolean>): ((e: any) => void) =>
     ({ target: { checked } }) => {
-      sig.value = checked;
+      setter(checked);
     };
 
   const getKeywordsAsArray = () =>
-    sigKeywords.value
+    keywords
       .split("\n")
       .map((keyword) => keyword.trim())
       .filter((keyword) => keyword);
 
   const getUpdatedProductObject = (): Product => ({
     ...product!,
-    id: sigId.value,
-    date: sigDate.value,
-    name: sigName.value,
-    tutorialLink: sigTutorialLink.value,
-    duration: sigDuration.value,
-    introduction: sigIntroduction.value,
+    id,
+    date,
+    name,
+    tutorialLink,
+    duration,
+    introduction,
     keywords: getKeywordsAsArray(),
-    sizes: sigSizes.value,
-    materials: sigMaterials.value,
-    stitches: sigStitches.value,
-    numMissingSeamAllowances: sigNumMissingSeamAllowances.value,
-    containsNotches: sigContainsNotches.value,
-    tips: sigTips.value,
+    sizes,
+    materials,
+    stitches,
+    numMissingSeamAllowances,
+    containsNotches,
+    tips,
   });
 
-  const updateSigWithChatGpt = (sig: Signal, getPrompt: () => string) => {
+  const updateWithChatGpt = (setter: StateUpdater<string>, getPrompt: () => string) => {
     let question;
 
     try {
@@ -172,7 +180,7 @@ const ProductEditView = ({
     apiclient
       .ask({ question })
       .then(({ answer }) => {
-        sig.value = answer;
+        setter(answer);
         toast({
           description: "Done! Don't forget to save 💾",
           status: "success",
@@ -192,11 +200,11 @@ const ProductEditView = ({
   };
 
   const addMaterial = () => {
-    sigMaterials.value = [...sigMaterials.value, { name: "{Material}", notes: "{Detail}" }];
+    setMaterials((prevMaterials) => [...prevMaterials, { name: "{Material}", notes: "{Detail}" }]);
   };
 
   const addSize = () => {
-    sigSizes.value = [...sigSizes.value, { alias: "Another Size", dimensions: [1, 2, 3] }];
+    setSizes((prevSizes) => [...prevSizes, { alias: "Another Size", dimensions: [1, 2, 3] }]);
   };
 
   return (
@@ -213,34 +221,41 @@ const ProductEditView = ({
           <TabPanels>
             <TabPanel>
               <FormLabel>Name</FormLabel>
-              <Input type="text" onChange={getSingularChangeHandler(sigName)} value={sigName.value} />
+              <Input type="text" onChange={getSingularChangeHandler(setName)} value={name} />
               <FormLabel>Tutorial Link</FormLabel>
-              <Input type="text" onChange={getSingularChangeHandler(sigTutorialLink)} value={sigTutorialLink.value} />
-              <NumericField label="Duration (minutes)" sig={sigDuration} min={1} max={600} step={1} />
+              <Input type="text" onChange={getSingularChangeHandler(setTutorialLink)} value={tutorialLink} />
+              <NumericField
+                label="Duration (minutes)"
+                value={duration}
+                setter={setDuration}
+                min={1}
+                max={600}
+                step={1}
+              />
             </TabPanel>
             <TabPanel>
               <FormLabel>Keywords (Line-separated)</FormLabel>
               <Textarea
                 type="text"
-                onChange={getSingularChangeHandler(sigKeywords)}
-                value={sigKeywords.value}
+                onChange={getSingularChangeHandler(setKeywords)}
+                value={keywords}
                 minHeight="200px"
               />
               <FormLabel>Introduction</FormLabel>
               <Textarea
                 type="text"
-                onChange={getSingularChangeHandler(sigIntroduction)}
-                value={sigIntroduction.value}
+                onChange={getSingularChangeHandler(setIntroduction)}
+                value={introduction}
                 minHeight="300px"
               />
               <Button
                 onClick={() =>
-                  updateSigWithChatGpt(sigIntroduction, () => {
+                  updateWithChatGpt(setIntroduction, () => {
                     const updated = getUpdatedProductObject();
                     return getIntroGenerationPrompt(updated);
                   })
                 }
-                isDisabled={(sigIntroduction?.value?.length || 0) > 0}
+                isDisabled={(introduction.length || 0) > 0}
                 leftIcon={<ChatIcon />}
                 size="sm"
                 marginTop="1em"
@@ -249,13 +264,11 @@ const ProductEditView = ({
                 Generate w/ ChatGPT
               </Button>
               <Button
-                onClick={() => {
-                  sigIntroduction.value = "";
-                }}
+                onClick={() => setIntroduction("")}
                 leftIcon={<DeleteIcon />}
                 size="sm"
                 marginTop="1em"
-                isDisabled={(sigIntroduction?.value?.length || 0) === 0}
+                isDisabled={(introduction.length || 0) === 0}
               >
                 Clear
               </Button>
@@ -265,8 +278,13 @@ const ProductEditView = ({
               <NumberInput
                 size="md"
                 maxW={24}
-                value={sigStitches.value.seamAllowance || 0}
-                onChange={(_, value) => (sigStitches.value = { ...sigStitches.value, seamAllowance: value })}
+                value={stitches.seamAllowance || 0}
+                onChange={(_, value) =>
+                  setStitches((prevStitches) => ({
+                    ...prevStitches,
+                    seamAllowance: value,
+                  }))
+                }
                 allowMouseWheel
                 min={0.1}
                 max={1000}
@@ -282,8 +300,13 @@ const ProductEditView = ({
               <NumberInput
                 size="md"
                 maxW={24}
-                value={sigStitches.value.secondSeamAllowance || 0}
-                onChange={(_, value) => (sigStitches.value = { ...sigStitches.value, secondSeamAllowance: value })}
+                value={stitches.secondSeamAllowance || 0}
+                onChange={(_, value) =>
+                  setStitches((prevStitches) => ({
+                    ...prevStitches,
+                    secondSeamAllowance: value,
+                  }))
+                }
                 allowMouseWheel
                 min={0}
                 max={1000}
@@ -299,8 +322,13 @@ const ProductEditView = ({
               <NumberInput
                 size="md"
                 maxW={24}
-                value={sigStitches.value.topStitch || 0}
-                onChange={(_, value) => (sigStitches.value = { ...sigStitches.value, topStitch: value })}
+                value={stitches.topStitch || 0}
+                onChange={(_, value) =>
+                  setStitches((prevStitches) => ({
+                    ...prevStitches,
+                    topStitch: value,
+                  }))
+                }
                 allowMouseWheel
                 min={0.1}
                 max={1000}
@@ -316,8 +344,13 @@ const ProductEditView = ({
               <NumberInput
                 size="md"
                 maxW={24}
-                value={sigStitches.value.basteStitch || 0}
-                onChange={(_, value) => (sigStitches.value = { ...sigStitches.value, basteStitch: value })}
+                value={stitches.basteStitch || 0}
+                onChange={(_, value) =>
+                  setStitches((prevStitches) => ({
+                    ...prevStitches,
+                    basteStitch: value,
+                  }))
+                }
                 allowMouseWheel
                 min={0.1}
                 max={1000}
@@ -331,13 +364,14 @@ const ProductEditView = ({
               </NumberInput>
               <NumericField
                 label="No. Pieces Missing S/A"
-                sig={sigNumMissingSeamAllowances}
+                value={numMissingSeamAllowances}
+                setter={setNumMissingSeamAllowances}
                 min={0}
                 max={10}
                 step={1}
               />
               {/* @ts-ignore */}
-              <Checkbox isChecked={sigContainsNotches.value} onChange={getCheckboxChangeHandler(sigContainsNotches)}>
+              <Checkbox isChecked={containsNotches} onChange={getCheckboxChangeHandler(setContainsNotches)}>
                 Notches
               </Checkbox>
             </TabPanel>
@@ -345,17 +379,18 @@ const ProductEditView = ({
               <FormLabel>Sizes (cm)</FormLabel>
               <table>
                 <tbody>
-                  {sigSizes.value.map(({ alias, dimensions }, i) => {
+                  {sizes.map(({ alias, dimensions }, i) => {
                     return (
                       <tr>
-                        {sigSizes.value.length > 1 && (
+                        {sizes.length > 1 && (
                           <td>
                             <Input
                               type="text"
                               value={alias}
                               onChange={({ target: { value } }) => {
-                                sigSizes.value[i].alias = value;
-                                sigSizes.value = [...sigSizes.value];
+                                // TODO: refactor with .reduce()
+                                sizes[i].alias = value;
+                                setSizes((prevSizes) => prevSizes);
                               }}
                             />
                           </td>
@@ -370,8 +405,9 @@ const ProductEditView = ({
                                 // TODO revise this logic
                                 const newDimensions =
                                   valueAsNumber === 2 ? dimensions.slice(0, 2) : [...dimensions.slice(0, 2), 1];
-                                sigSizes.value[i].dimensions = newDimensions;
-                                sigSizes.value = [...sigSizes.value];
+                                // TODO: refactor with .reduce()
+                                sizes[i].dimensions = newDimensions;
+                                setSizes((prevSizes) => prevSizes);
                               }
                             }}
                           >
@@ -381,15 +417,13 @@ const ProductEditView = ({
                         </td>
                         {dimensions.map((_, k) => (
                           <td>
-                            <DimensionField sigSizes={sigSizes} i={i} k={k} />
+                            <DimensionField sizes={sizes} sizeSetter={setSizes} i={i} k={k} />
                           </td>
                         ))}
                         <td>
                           <Button
                             leftIcon={<DeleteIcon />}
-                            onClick={() => {
-                              sigSizes.value = sigSizes.value.filter((_, j) => i !== j);
-                            }}
+                            onClick={() => setSizes((prevSizes) => prevSizes.filter((_, j) => i !== j))}
                           />
                         </td>
                       </tr>
@@ -401,15 +435,16 @@ const ProductEditView = ({
               <FormLabel>Materials</FormLabel>
               <table>
                 <tbody>
-                  {sigMaterials.value.map(({ name, notes }, i) => (
+                  {materials.map(({ name, notes }, i) => (
                     <tr>
                       <td>
                         <Input
                           type="text"
                           value={name}
                           onChange={({ target: { value } }) => {
-                            sigMaterials.value[i].name = value as string;
-                            sigMaterials.value = [...sigMaterials.value]; // tell the observe the value has changed.
+                            // TODO: use .reduce()
+                            materials[i].name = value as string;
+                            setMaterials((prevMaterials) => prevMaterials);
                           }}
                         />
                       </td>
@@ -419,17 +454,15 @@ const ProductEditView = ({
                           value={notes}
                           minWidth="275px"
                           onChange={({ target: { value } }) => {
-                            sigMaterials.value[i].notes = value as string;
-                            sigMaterials.value = [...sigMaterials.value]; // tell the observe the value has changed.
+                            materials[i].notes = value as string;
+                            setMaterials((prevMaterials) => prevMaterials);
                           }}
                         />
                       </td>
                       <td>
                         <Button
                           leftIcon={<DeleteIcon />}
-                          onClick={() => {
-                            sigMaterials.value = sigMaterials.value.filter((_, j) => i !== j);
-                          }}
+                          onClick={() => setMaterials((prevMaterials) => prevMaterials.filter((_, j) => i !== j))}
                         />
                       </td>
                     </tr>
@@ -440,15 +473,10 @@ const ProductEditView = ({
             </TabPanel>
             <TabPanel>
               <FormLabel>Tips</FormLabel>
-              <Textarea
-                type="text"
-                onChange={getSingularChangeHandler(sigTips)}
-                value={sigTips.value}
-                minHeight="300px"
-              />
+              <Textarea type="text" onChange={getSingularChangeHandler(setTips)} value={tips} minHeight="300px" />
               <Button
                 onClick={() =>
-                  updateSigWithChatGpt(sigTips, () => {
+                  updateWithChatGpt(setTips, () => {
                     const updated = getUpdatedProductObject();
                     return `Translate into American English in the context of sewing: ${updated.tips}`;
                   })
@@ -457,13 +485,13 @@ const ProductEditView = ({
                 size="sm"
                 marginTop="1em"
                 marginRight="1em"
-                isDisabled={sigTips.value.length === 0}
+                isDisabled={tips.length === 0}
               >
                 Translate into English
               </Button>
               <Button
                 onClick={() =>
-                  updateSigWithChatGpt(sigTips, () => {
+                  updateWithChatGpt(setTips, () => {
                     const updated = getUpdatedProductObject();
                     return `Rephrase in a friendly and delightful tone in the context of sewing: ${updated.tips}`;
                   })
@@ -472,18 +500,16 @@ const ProductEditView = ({
                 size="sm"
                 marginTop="1em"
                 marginRight="1em"
-                isDisabled={sigTips.value.length === 0}
+                isDisabled={tips.length === 0}
               >
                 Rephrase w/ ChatGPT
               </Button>
               <Button
-                onClick={() => {
-                  sigTips.value = "";
-                }}
+                onClick={() => setTips("")}
                 leftIcon={<DeleteIcon />}
                 size="sm"
                 marginTop="1em"
-                isDisabled={sigTips.value.length === 0}
+                isDisabled={tips.length === 0}
               >
                 Clear
               </Button>

@@ -1,4 +1,5 @@
 import ReconnectingWebSocket from "reconnecting-websocket";
+
 import { ChatLogEntry, Product, ProductLocalFileStat, WebsocketListener } from "./types";
 
 const GPT_MAX_NUM_TURNS = 5;
@@ -8,7 +9,7 @@ const WEBSOCKET_LISTENERS: WebsocketListener[] = [];
 if (localStorage.getItem("dev")) {
   new ReconnectingWebSocket(`wss://${window.location.hostname}/api/ws`).onmessage = ({ data }) => {
     const message = JSON.parse(data);
-    WEBSOCKET_LISTENERS.forEach(listener => listener(message));
+    WEBSOCKET_LISTENERS.forEach((listener) => listener(message));
   };
 }
 
@@ -108,20 +109,22 @@ const ask = (payload: { question: string; log?: ChatLogEntry[] }): Promise<{ ans
     body: JSON.stringify({ question: payload.question, log: payload.log?.slice(-GPT_MAX_NUM_TURNS) }),
   }).then((r) => r.json());
 
-const generateWrittenInstructions = (productId: string): Promise<void> => fetch(`/api/products/${productId}/transcribe`, {
-  method: "POST",
-  headers: {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-  },
-}).then((r) => r.json());
+const generateWrittenInstructions = (productId: string): Promise<void> =>
+  fetch(`/api/products/${productId}/transcribe`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+  }).then((r) => r.json());
 
-const getLocalFileStats = (productId: string): Promise<{ stats: ProductLocalFileStat[] }> => fetch(`/api/products/${productId}/stats`, {
-  headers: {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-  }
-}).then((r) => r.json());
+const getLocalFileStats = (productId: string): Promise<{ stats: ProductLocalFileStat[] }> =>
+  fetch(`/api/products/${productId}/stats`, {
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+  }).then((r) => r.json());
 
 const addWsListener = (listener: WebsocketListener) => {
   WEBSOCKET_LISTENERS.push(listener);
@@ -145,5 +148,5 @@ export default {
   generateWrittenInstructions,
   addWsListener,
   removeWsListener,
-  getLocalFileStats
+  getLocalFileStats,
 };
