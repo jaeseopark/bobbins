@@ -9,6 +9,7 @@ import Chat from "./components/Chat";
 import ConversionsWithPopover from "./components/ConversionsWithPopover";
 import CsMessageComposer from "./components/CsMessageComposer";
 import ProductGridView from "./components/ProductGridView";
+import Translate from "./components/Translate";
 import UserGuideTemplate from "./components/UserGuideTemplate";
 import UserSettings from "./components/UserSettings";
 
@@ -37,6 +38,7 @@ const VIEWS: View[] = [
   { path: "/", name: "Inventory", component: Inventory, state: "ACTIVE" },
   { path: "/cs", name: "CS Message Composer", component: CsMessageComposer, state: "HIDDEN" },
   { path: "/chat", name: "Chat", component: Chat, state: "ACTIVE" },
+  { path: "/translate", name: "Translate", component: Translate, state: "ACTIVE" },
   { path: "/templates/userguide", name: "User Guide Template", component: UserGuideTemplate, state: "HIDDEN" },
   { path: "/settings", name: "Settings", component: UserSettings, state: "ACTIVE" },
 ];

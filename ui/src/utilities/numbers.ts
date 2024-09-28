@@ -28,4 +28,5 @@ const mmToInches = (mm: number, nearest: number): Inch => {
   return { decimal, fraction };
 };
 
+export const mmToInchString = (mm: number, nearest = 0.125): string => mmToInches(mm, nearest).fraction;
 export const cmToInchString = (cm: number, nearest = 0.125): string => mmToInches(cm * 10, nearest).fraction;

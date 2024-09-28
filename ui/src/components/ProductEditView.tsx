@@ -21,7 +21,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { Product, Size } from "../types";
 
-import apiclient from "../apiclient";
+import { updateWithChatGpt as withChatGpt } from "../utilities/gpt";
 
 import "./ProductEditView.scss";
 
@@ -100,7 +100,7 @@ const ProductEditView = ({
   const toast = useToast();
   const [id] = useState<string>(product?.id || uuidv4().toString());
   const [name, setName] = useState(product?.name || "New Product");
-  const [date, setDate] = useState(product?.date || Date.now());
+  const [date] = useState(product?.date || Date.now());
   const [introduction, setIntroduction] = useState(product?.introduction || "");
   const [keywords, setKeywords] = useState(product?.keywords.join("\n") || "");
   const [materials, setMaterials] = useState(product?.materials || []);
@@ -155,49 +155,8 @@ const ProductEditView = ({
     tips,
   });
 
-  const updateWithChatGpt = (setter: StateUpdater<string>, getPrompt: () => string) => {
-    let question;
-
-    try {
-      question = getPrompt();
-    } catch (error) {
-      toast({
-        description: "Could not get the chat prompt.",
-        status: "warning",
-        duration: TOAST_DURATION,
-        isClosable: true,
-      });
-      return;
-    }
-
-    toast({
-      description: "Processing...",
-      status: "info",
-      duration: TOAST_DURATION,
-      isClosable: true,
-    });
-
-    apiclient
-      .ask({ question })
-      .then(({ answer }) => {
-        setter(answer);
-        toast({
-          description: "Done! Don't forget to save 💾",
-          status: "success",
-          duration: TOAST_DURATION,
-          isClosable: true,
-        });
-      })
-      .catch(() => {
-        toast({
-          title: "Error",
-          description: "Something went wrong.",
-          status: "error",
-          duration: TOAST_DURATION,
-          isClosable: true,
-        });
-      });
-  };
+  const updateWithChatGpt = (setter: StateUpdater<string>, getPrompt: () => string) =>
+    withChatGpt(setter, getPrompt, toast, TOAST_DURATION);
 
   const addMaterial = () => {
     setMaterials((prevMaterials) => [...prevMaterials, { name: "{Material}", notes: "{Detail}" }]);
