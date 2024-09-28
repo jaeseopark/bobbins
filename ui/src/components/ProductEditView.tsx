@@ -22,6 +22,9 @@ import { v4 as uuidv4 } from "uuid";
 import { Product, Size } from "../types";
 
 import { updateWithChatGpt as withChatGpt } from "../utilities/gpt";
+import { bulkConvertUnits } from "../utilities/numbers";
+
+import { BlackCalcIcon } from "./global";
 
 import "./ProductEditView.scss";
 
@@ -462,6 +465,16 @@ const ProductEditView = ({
                 isDisabled={tips.length === 0}
               >
                 Rephrase w/ ChatGPT
+              </Button>
+              <Button
+                onClick={() => setTips(bulkConvertUnits(tips))}
+                leftIcon={<BlackCalcIcon />}
+                size="sm"
+                marginTop="1em"
+                marginRight="1em"
+                isDisabled={tips.length === 0}
+              >
+                Convert
               </Button>
               <Button
                 onClick={() => setTips("")}

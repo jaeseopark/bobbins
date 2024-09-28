@@ -9,10 +9,7 @@ import {
 } from "@chakra-ui/react";
 
 import Conversions from "./Conversions";
-
-import "./ConversionsWithPopover.scss";
-
-const CalcIcon = () => <div className="calc-icon" />;
+import { CalcIcon } from "./global";
 
 const WithPopover = ({ buttonSize }: { buttonSize?: string }) => (
   <Popover>

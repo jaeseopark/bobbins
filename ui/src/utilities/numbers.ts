@@ -30,3 +30,24 @@ const mmToInches = (mm: number, nearest: number): Inch => {
 
 export const mmToInchString = (mm: number, nearest = 0.125): string => mmToInches(mm, nearest).fraction;
 export const cmToInchString = (cm: number, nearest = 0.125): string => mmToInches(cm * 10, nearest).fraction;
+
+export const bulkConvertUnits = (text: string): string => {
+  return text.replace(/(\d+\.?\d?)\s?(cm|mm)/g, (token) => {
+    const matchArray = /(\d+\.?\d?)\s?(cm|mm)/g.exec(token);
+    if (!matchArray) {
+      console.log("no match: " + token);
+      return token;
+    }
+
+    const number = parseFloat(matchArray[1]);
+    const unit = matchArray[2];
+
+    console.log(`match found: array=${matchArray} number=${number} unit=${unit}`);
+    if (unit === "cm") {
+      return `${token} (${cmToInchString(number)}")`;
+    } else if (unit === "mm") {
+      return `${token} (${mmToInchString(number)}")`;
+    }
+    throw new Error(`Unsupported unit: ${unit}`);
+  });
+};

@@ -3,32 +3,11 @@ import { Button, Textarea, useToast } from "@chakra-ui/react";
 import { useState } from "preact/hooks";
 
 import { updateWithChatGpt } from "../utilities/gpt";
-import { cmToInchString, mmToInchString } from "../utilities/numbers";
+import { bulkConvertUnits } from "../utilities/numbers";
+
+import { BlackCalcIcon } from "./global";
 
 import "./Translate.scss";
-
-const CalcIcon = () => <div className="black-calc-icon" />;
-
-const convert = (ogPhrase: string): string => {
-  return ogPhrase.replace(/(\d+\.?\d?)\s?(cm|mm)/g, (token) => {
-    const matchArray = /(\d+\.?\d?)\s?(cm|mm)/g.exec(token);
-    if (!matchArray) {
-      console.log("no match: " + token);
-      return token;
-    }
-
-    const number = parseFloat(matchArray[1]);
-    const unit = matchArray[2];
-
-    console.log(`match found: array=${matchArray} number=${number} unit=${unit}`);
-    if (unit === "cm") {
-      return `${token} (${cmToInchString(number)}")`;
-    } else if (unit === "mm") {
-      return `${token} (${mmToInchString(number)}")`;
-    }
-    throw new Error(`Unsupported unit: ${unit}`);
-  });
-};
 
 const Translate = () => {
   const [phrase, setPhrase] = useState("");
@@ -77,8 +56,8 @@ const Translate = () => {
         Rephrase w/ ChatGPT
       </Button>
       <Button
-        onClick={() => setPhrase(convert(phrase))}
-        leftIcon={<CalcIcon />}
+        onClick={() => setPhrase(bulkConvertUnits(phrase))}
+        leftIcon={<BlackCalcIcon />}
         size="sm"
         marginTop="1em"
         marginRight="1em"
