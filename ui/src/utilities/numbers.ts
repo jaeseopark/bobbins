@@ -30,6 +30,7 @@ const mmToInches = (mm: number, nearest: number): Inch => {
 
 export const mmToInchString = (mm: number, nearest = 0.125): string => mmToInches(mm, nearest).fraction;
 export const cmToInchString = (cm: number, nearest = 0.125): string => mmToInches(cm * 10, nearest).fraction;
+export const inchesToCmString = (inches: number, decimalPlaces = 1): string => (inches * 2.54).toFixed(decimalPlaces);
 
 export const bulkConvertUnits = (text: string): string => {
   return text.replace(/(\d+\.?\d?)\s?(cm|mm)/g, (token) => {
