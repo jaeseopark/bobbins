@@ -19,7 +19,7 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
 import { StateUpdater, useState } from "preact/hooks";
 import { v4 as uuidv4 } from "uuid";
 
-import { Product, Size, StitchKey } from "../types";
+import { Material, Product, Size, StitchKey } from "../types";
 
 import { updateWithChatGpt as withChatGpt } from "../utilities/gpt";
 import { bulkConvertUnits } from "../utilities/numbers";
@@ -425,9 +425,19 @@ const ProductEditView = ({
                           type="text"
                           value={name}
                           onChange={({ target: { value } }) => {
-                            // TODO: use .reduce()
-                            materials[i].name = value as string;
-                            setMaterials((prevMaterials) => prevMaterials);
+                            setMaterials((prevMaterials) =>
+                              prevMaterials.reduce((acc, next, j) => {
+                                if (i === j) {
+                                  acc.push({
+                                    ...next,
+                                    name: value as string,
+                                  });
+                                } else {
+                                  acc.push(next);
+                                }
+                                return acc;
+                              }, [] as Material[]),
+                            );
                           }}
                         />
                       </td>
