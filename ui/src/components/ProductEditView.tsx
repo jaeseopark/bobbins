@@ -19,7 +19,7 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
 import { StateUpdater, useState } from "preact/hooks";
 import { v4 as uuidv4 } from "uuid";
 
-import { Product, Size } from "../types";
+import { Product, Size, StitchKey } from "../types";
 
 import { updateWithChatGpt as withChatGpt } from "../utilities/gpt";
 import { bulkConvertUnits } from "../utilities/numbers";
@@ -108,7 +108,9 @@ const ProductEditView = ({
   const [keywords, setKeywords] = useState(product?.keywords.join("\n") || "");
   const [materials, setMaterials] = useState(product?.materials || []);
   const [duration, setDuration] = useState(product?.duration || 30);
-  const [stitches, setStitches] = useState(product?.stitches || {});
+  const [stitches, setStitches] = useState<Record<StitchKey, number>>(
+    product?.stitches || ({} as Record<StitchKey, number>),
+  );
   const [sizes, setSizes] = useState(product?.sizes || []);
   const [tutorialLink, setTutorialLink] = useState(product?.tutorialLink || "https://youtube.com/");
   const [numMissingSeamAllowances, setNumMissingSeamAllowances] = useState(product?.numMissingSeamAllowances || 0);
@@ -350,9 +352,19 @@ const ProductEditView = ({
                               type="text"
                               value={alias}
                               onChange={({ target: { value } }) => {
-                                // TODO: refactor with .reduce()
-                                sizes[i].alias = value;
-                                setSizes((prevSizes) => prevSizes);
+                                setSizes((prevSizes) =>
+                                  prevSizes.reduce((acc, next, j) => {
+                                    if (i === j) {
+                                      acc.push({
+                                        ...next,
+                                        alias: value,
+                                      });
+                                    } else {
+                                      acc.push(next);
+                                    }
+                                    return acc;
+                                  }, [] as Size[]),
+                                );
                               }}
                             />
                           </td>
@@ -364,12 +376,21 @@ const ProductEditView = ({
                             onChange={({ target: { value } }) => {
                               const valueAsNumber = parseFloat(value);
                               if (valueAsNumber !== dimensions.length) {
-                                // TODO revise this logic
-                                const newDimensions =
-                                  valueAsNumber === 2 ? dimensions.slice(0, 2) : [...dimensions.slice(0, 2), 1];
-                                // TODO: refactor with .reduce()
-                                sizes[i].dimensions = newDimensions;
-                                setSizes((prevSizes) => prevSizes);
+                                const firstTwoElements = dimensions.slice(0, 2);
+                                const newDimensions = valueAsNumber === 2 ? firstTwoElements : [...firstTwoElements, 1];
+                                setSizes((prevSizes) =>
+                                  prevSizes.reduce((acc, next, j) => {
+                                    if (i === j) {
+                                      acc.push({
+                                        ...next,
+                                        dimensions: newDimensions,
+                                      });
+                                    } else {
+                                      acc.push(next);
+                                    }
+                                    return acc;
+                                  }, [] as Size[]),
+                                );
                               }
                             }}
                           >

@@ -5,6 +5,8 @@ export type Size = {
   dimensions: number[];
 };
 
+export type StitchKey = "seamAllowance" | "secondSeamAllowance" | "topStitch" | "basteStitch";
+
 export type Product = {
   id: string;
   name: string;
@@ -16,9 +18,7 @@ export type Product = {
   thumbnails?: string[];
   materials?: Material[];
   sizes: Size[];
-  stitches: {
-    [alias: string]: number;
-  };
+  stitches: Record<StitchKey, number>;
   tutorialLink: string;
   containsNotches: boolean;
   numMissingSeamAllowances: number;
