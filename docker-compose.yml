@@ -28,6 +28,8 @@ services:
     working_dir: /app/api
     stop_signal: SIGINT # https://github.com/docker/compose/issues/4199#issuecomment-426109482
     command: uvicorn main:fastapi_app --reload --host 0.0.0.0 --port 80
+    env_file:
+      - .env
     volumes:
       - ./api:/app/api
       - ./mnt/data:/data
