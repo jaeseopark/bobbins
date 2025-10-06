@@ -63,9 +63,26 @@ const DimensionField = ({
       value={dimensions[k]}
       step={0.1}
       onChange={(_, value) => {
-        dimensions[k] = value;
-        sizes[i].dimensions = dimensions;
-        sizeSetter((prevSizes) => prevSizes);
+        sizeSetter((prev) =>
+          prev.reduce((acc, next, l) => {
+            if (l === i) {
+              acc.push({
+                ...next,
+                dimensions: next.dimensions.reduce((acc, next, m) => {
+                  if (k === m) {
+                    acc.push(value);
+                  } else {
+                    acc.push(next);
+                  }
+                  return acc;
+                }, [] as number[]),
+              });
+            } else {
+              acc.push(next);
+            }
+            return acc;
+          }, [] as Size[]),
+        );
       }}
     >
       <NumberInputField />
