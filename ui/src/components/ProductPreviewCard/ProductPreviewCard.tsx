@@ -26,7 +26,7 @@ const DEFAULT_THUMBNAIL_URL = "https://upload.wikimedia.org/wikipedia/commons/6/
 
 const ProductPreviewCard = ({ product }: { product: Product }) => {
   const { isOpen: isEditorModalOpen, onOpen: openEditorModal, onClose: closeEditorModal } = useDisclosure();
-  const [thumbnailUrl, setThumbnailUrl] = useState<string>(getFirstThumbnailUrl(product));
+  const [thumbnailUrl, setThumbnailUrl] = useState<string>(getFirstThumbnailUrl(product)|| "");
 
   const handleProductChange = async (updated: Product): Promise<SubmitResponse> => {
     try {

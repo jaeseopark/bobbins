@@ -17,13 +17,12 @@ export function getDescription(product: Product): string {
 }
 
 /**
- * Returns the first thumbnail URL for a product, or a placeholder if not available.
+ * Returns the first thumbnail URL for a product.
  */
-export function getFirstThumbnailUrl(product: Product): string {
+export function getFirstThumbnailUrl(product: Product): string | undefined {
     if (product.thumbnails && product.thumbnails.length > 0) {
         return product.thumbnails[0];
     }
-    return "/images/placeholder.png";
 }
 
 /**
