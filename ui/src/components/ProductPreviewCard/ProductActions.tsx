@@ -1,5 +1,5 @@
 import { ArrowUpIcon, CopyIcon, DownloadIcon, EditIcon } from "@chakra-ui/icons";
-import { Button, HStack, IconButton, useToast } from "@chakra-ui/react";
+import { Button, IconButton, useToast, VStack } from "@chakra-ui/react";
 import { useRef } from "preact/hooks";
 
 import { Product } from "../../types";
@@ -75,19 +75,19 @@ const ProductActions = ({ product, onEdit, onThumbnailUploaded }: ProductActions
   };
 
   return (
-    <HStack spacing={2}>
-      <IconButton aria-label="Edit this product" icon={<EditIcon />} onClick={onEdit} />
+    <VStack spacing={2}>
+      <IconButton aria-label="Edit this product" icon={<EditIcon />} onClick={onEdit} w="full" />
       <input type="file" id="file" ref={thumbnailFile} style={{ display: "none" }} onChange={handleUploadThumbnail} />
-      <Button leftIcon={<ArrowUpIcon />} onClick={() => thumbnailFile.current?.click()} variant="solid" size="sm">
+      <Button leftIcon={<ArrowUpIcon />} onClick={() => thumbnailFile.current?.click()} variant="solid" size="sm" w="full">
         Upload thumbnail
       </Button>
-      <Button leftIcon={<DownloadIcon />} onClick={openUserGuide} variant="solid" size="sm">
+      <Button leftIcon={<DownloadIcon />} onClick={openUserGuide} variant="solid" size="sm" w="full">
         User guide
       </Button>
-      <Button variant="solid" size="sm" leftIcon={<CopyIcon />} onClick={handleCopyDescription}>
+      <Button variant="solid" size="sm" leftIcon={<CopyIcon />} onClick={handleCopyDescription} w="full">
         Description
       </Button>
-    </HStack>
+    </VStack>
   );
 };
 

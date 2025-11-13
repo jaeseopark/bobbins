@@ -1,4 +1,4 @@
-import { StepProps } from '../../types/CsMessageComposer.types';
+import { StepProps } from './types';
 import './WizardStep.scss';
 
 const MessageInputStep = ({ state, onUpdate }: StepProps) => {

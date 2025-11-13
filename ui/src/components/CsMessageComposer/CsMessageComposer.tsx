@@ -2,7 +2,7 @@ import { useSignal } from '@preact/signals';
 import { useEffect } from 'preact/hooks';
 import { FunctionalComponent } from 'preact';
 import apiclient from '../../apiclient';
-import { WizardState, WizardStep } from '../../types/CsMessageComposer.types';
+import { WizardState, WizardStep } from './types';
 import MessageInputStep from './MessageInputStep';
 import ResultsStep from './ResultsStep';
 
@@ -45,7 +45,7 @@ const getPrompt = (messageText: string): string => {
   - Avoid making promises or commitments that cannot be fulfilled.
   - Ensure responses are tailored to the customer's specific concerns as expressed in their message.
   - Speak in 1st person's view, as if the company is run by a single individual -- the pattern designer.
-  - Emphasize the small business aspect when appropriate.
+  - Emphasize the small business aspect when appropriate use the phrases such as "small business", "big impact" where relevant.
 
   ## Sample responses
 
@@ -81,7 +81,7 @@ const CsMessageComposer = () => {
   useEffect(() => {
     const state = sigWizardState.value;
 
-    if (state.currentStep === 'results' && !state.responseOptions) {
+    if (state.currentStep === 'results' && !state.responseOptions && !state.error) {
 
       const question: string = getPrompt(state.messageText!);
 
@@ -92,13 +92,28 @@ const CsMessageComposer = () => {
           log
         })).then(({ answer }) => {
           const options = parseResponseOptions(answer);
-          handleUpdate({ responseOptions: options });
+          handleUpdate({ responseOptions: options, error: undefined });
         }).catch((error) => {
           console.error('Failed to generate responses:', error);
+          
+          // Extract error details
+          let errorMessage = 'Failed to generate responses. Please try again.';
+          let statusCode: number | undefined;
+
+          if (error instanceof Response) {
+            statusCode = error.status;
+            errorMessage = `HTTP ${error.status}: ${error.statusText}`;
+          } else if (error?.message) {
+            errorMessage = error.message;
+          } else if (typeof error === 'string') {
+            errorMessage = error;
+          }
+
           handleUpdate({
-            responseOptions: [
-              'Sorry, we encountered an error generating responses. Please try again.',
-            ],
+            error: {
+              message: errorMessage,
+              statusCode,
+            },
           });
         });
     }

@@ -5,18 +5,18 @@
 
 import { FunctionalComponent } from 'preact';
 
-export type ActionVisibility = 'public' | 'private';
-
-export type WizardStep = {
-  component: FunctionalComponent<StepProps>;
-  getNextStep: (state: WizardState) => string;
-}
+export type WizardStep =
+  | 'message_input'
+  | 'results';
 
 export interface WizardState {
   currentStep: WizardStep;
-  customerAction?: ActionVisibility;
-  customerText?: string;
+  messageText?: string;
   responseOptions?: string[];
+  error?: {
+    message: string;
+    statusCode?: number;
+  };
 }
 
 export interface StepProps {
@@ -24,8 +24,7 @@ export interface StepProps {
   onUpdate: (update: Partial<WizardState>) => void;
 }
 
-export type PromptGenerator = (customerMessage: string) => string;
-
-export type PromptBuilder = {
-  promptGenerators: PromptGenerator[];
+export interface StepConfig {
+  component: FunctionalComponent<StepProps>;
+  getNextStep: (state: WizardState) => WizardStep | null;
 }
