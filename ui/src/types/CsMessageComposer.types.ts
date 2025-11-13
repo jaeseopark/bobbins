@@ -12,7 +12,6 @@ export type WizardStep =
 export interface WizardState {
   currentStep: WizardStep;
   messageText?: string;
-  replaceEndashes?: boolean;
   responseOptions?: string[];
 }
 

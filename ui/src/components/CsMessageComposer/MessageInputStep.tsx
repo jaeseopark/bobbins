@@ -7,11 +7,6 @@ const MessageInputStep = ({ state, onUpdate }: StepProps) => {
     onUpdate({ messageText: target.value });
   };
 
-  const handleCheckboxChange = (e: Event) => {
-    const target = e.target as HTMLInputElement;
-    onUpdate({ replaceEndashes: target.checked });
-  };
-
   const handleNext = () => {
     onUpdate({ currentStep: 'results' });
   };
@@ -22,7 +17,7 @@ const MessageInputStep = ({ state, onUpdate }: StepProps) => {
     <div className="wizard-step">
       <div className="wizard-step__header">
         <h2>Customer's Message</h2>
-        <p className="wizard-step__label">Paste the customer's private message below:</p>
+        <p className="wizard-step__label">Paste the customer's message/review below:</p>
       </div>
       <textarea
         className="wizard-step__textarea"
@@ -31,16 +26,6 @@ const MessageInputStep = ({ state, onUpdate }: StepProps) => {
         placeholder="Paste the customer's message here..."
         rows={10}
       />
-      <div className="wizard-step__checkbox">
-        <label>
-          <input
-            type="checkbox"
-            checked={state.replaceEndashes || false}
-            onChange={handleCheckboxChange}
-          />
-          <span>Replace endashes with commas</span>
-        </label>
-      </div>
       <div className="wizard-step__actions">
         <button
           className="wizard-step__button wizard-step__button--primary"

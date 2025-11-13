@@ -87,18 +87,10 @@ const CsMessageComposer = () => {
 
       apiclient
         .ask({ question })
-        .then(({ answer, log }) => {
-          if (state.replaceEndashes) {
-            return apiclient.ask(
-              {
-                question: "Connect sentences directly instead of using en-dashes. ",
-                log
-              }
-            )
-          }
-
-          return { answer, log };
-        }).then(({ answer }) => {
+        .then(({ log }) => apiclient.ask({
+          question: "Connect sentences directly instead of using en-dashes. ",
+          log
+        })).then(({ answer }) => {
           const options = parseResponseOptions(answer);
           handleUpdate({ responseOptions: options });
         }).catch((error) => {
