@@ -1,9 +1,22 @@
-import { useState } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 import { StepProps } from '../../types/CsMessageComposer.types';
 import './WizardStep.scss';
 
 const ResultsStep = ({ state, onUpdate }: StepProps) => {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
+
+  const options = state.responseOptions || [];
+
+  useEffect(() => {
+    if (options.length === 0) {
+      const interval = setInterval(() => {
+        setElapsedTime((prev) => prev + 1);
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [options.length]);
 
   const handleCopy = async (text: string, index: number) => {
     try {
@@ -17,20 +30,22 @@ const ResultsStep = ({ state, onUpdate }: StepProps) => {
 
   const handleStartOver = () => {
     onUpdate({
-      currentStep: 'customer_action',
-      customerAction: undefined,
-      reviewType: undefined,
+      currentStep: 'message_input',
       messageText: undefined,
-      reviewText: undefined,
       replaceEndashes: false,
       responseOptions: undefined,
     });
   };
 
-  const options = state.responseOptions || [];
-
   return (
     <div className="wizard-step">
+      <div className="wizard-step__header">
+        <h2>Original Message</h2>
+        <p>
+          {state.messageText}
+        </p>
+      </div>
+
       <div className="wizard-step__header">
         <h2>Response Options</h2>
         <p className="wizard-step__label">
@@ -40,7 +55,7 @@ const ResultsStep = ({ state, onUpdate }: StepProps) => {
 
       {options.length === 0 ? (
         <div className="wizard-step__loading">
-          <p>Generating response options...</p>
+          <p>Generating response options... This can take up to a minute. ({elapsedTime}s)</p>
         </div>
       ) : (
         <div className="wizard-step__results-grid">

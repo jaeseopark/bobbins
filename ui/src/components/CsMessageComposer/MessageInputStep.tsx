@@ -43,12 +43,6 @@ const MessageInputStep = ({ state, onUpdate }: StepProps) => {
       </div>
       <div className="wizard-step__actions">
         <button
-          className="wizard-step__button wizard-step__button--secondary"
-          onClick={() => onUpdate({ currentStep: 'customer_action' })}
-        >
-          Back
-        </button>
-        <button
           className="wizard-step__button wizard-step__button--primary"
           onClick={handleNext}
           disabled={!isValid}
