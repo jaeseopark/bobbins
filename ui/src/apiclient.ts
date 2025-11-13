@@ -107,7 +107,12 @@ const ask = (payload: { question: string; log?: ChatLogEntry[] }): Promise<{ ans
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ question: payload.question, log: payload.log?.slice(-GPT_MAX_NUM_TURNS) }),
-  }).then((r) => r.json());
+  }).then((r) => {
+    if (!r.ok) {
+      throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+    }
+    return r.json();
+  });
 
 const generateWrittenInstructions = (productId: string): Promise<void> =>
   fetch(`/api/products/${productId}/transcribe`, {

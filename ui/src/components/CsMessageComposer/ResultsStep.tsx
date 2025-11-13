@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'preact/hooks';
-import { StepProps } from '../../types/CsMessageComposer.types';
+import { StepProps } from './types';
 import './WizardStep.scss';
 
 const ResultsStep = ({ state, onUpdate }: StepProps) => {
@@ -7,16 +7,17 @@ const ResultsStep = ({ state, onUpdate }: StepProps) => {
   const [elapsedTime, setElapsedTime] = useState<number>(0);
 
   const options = state.responseOptions || [];
+  const error = state.error;
 
   useEffect(() => {
-    if (options.length === 0) {
+    if (options.length === 0 && !error) {
       const interval = setInterval(() => {
         setElapsedTime((prev) => prev + 1);
       }, 1000);
 
       return () => clearInterval(interval);
     }
-  }, [options.length]);
+  }, [options.length, error]);
 
   const handleCopy = async (text: string, index: number) => {
     try {
@@ -33,6 +34,15 @@ const ResultsStep = ({ state, onUpdate }: StepProps) => {
       currentStep: 'message_input',
       messageText: undefined,
       responseOptions: undefined,
+      error: undefined,
+    });
+  };
+
+  const handleRetry = () => {
+    setElapsedTime(0);
+    onUpdate({
+      responseOptions: undefined,
+      error: undefined,
     });
   };
 
@@ -52,7 +62,21 @@ const ResultsStep = ({ state, onUpdate }: StepProps) => {
         </p>
       </div>
 
-      {options.length === 0 ? (
+      {error ? (
+        <div className="wizard-step__error">
+          <p className="wizard-step__error-title">Error Generating Responses</p>
+          <p className="wizard-step__error-message">
+            {error.statusCode && `Status Code: ${error.statusCode} - `}
+            {error.message}
+          </p>
+          <button
+            className="wizard-step__button wizard-step__button--primary"
+            onClick={handleRetry}
+          >
+            Retry
+          </button>
+        </div>
+      ) : options.length === 0 ? (
         <div className="wizard-step__loading">
           <p>Generating response options... This can take up to a minute. ({elapsedTime}s)</p>
         </div>
