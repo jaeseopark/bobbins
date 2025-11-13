@@ -16,7 +16,6 @@ export interface WizardState {
   currentStep: WizardStep;
   customerAction?: ActionVisibility;
   customerText?: string;
-  replaceEndashes?: boolean;
   responseOptions?: string[];
 }
 

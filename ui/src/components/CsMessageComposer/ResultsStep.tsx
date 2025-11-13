@@ -32,7 +32,6 @@ const ResultsStep = ({ state, onUpdate }: StepProps) => {
     onUpdate({
       currentStep: 'message_input',
       messageText: undefined,
-      replaceEndashes: false,
       responseOptions: undefined,
     });
   };
