@@ -39,6 +39,7 @@ const ResultsStep = ({ state, onUpdate }: StepProps) => {
   };
 
   const handleRetry = () => {
+    setElapsedTime(0);
     onUpdate({
       responseOptions: undefined,
       error: undefined,
