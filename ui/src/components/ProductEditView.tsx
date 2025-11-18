@@ -37,8 +37,9 @@ const getIntroGenerationPrompt = (p: Product): string => {
   return [
     `In 4 joyful sentences, write a product description for a PDF sewing pattern "${p.name}"`,
     `with the following characteristics: ${p.keywords.join(", ")}.`,
+    `The total craft time is ${p.duration} minutes.`,
     "The pattern can be printed on standard US Letter size or A4 paper at home.",
-    `The project comes with a ${p.duration}-minute step-by-step youtube tutorial video.`,
+    `The project comes with a step-by-step youtube tutorial video.`,
     sizeCount > 1 && `The pattern comes in ${sizeCount} sizes.`,
   ]
     .filter((line) => line)
@@ -206,7 +207,7 @@ const ProductEditView = ({
               <FormLabel>Tutorial Link</FormLabel>
               <Input type="text" onChange={getSingularChangeHandler(setTutorialLink)} value={tutorialLink} />
               <NumericField
-                label="Duration (minutes)"
+                label="Craft time (minutes)"
                 value={duration}
                 setter={setDuration}
                 min={1}
