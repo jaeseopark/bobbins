@@ -14,7 +14,7 @@ from pdf import generate_user_guide
 
 
 from db import SqliteDatabase
-from ai import askgpt
+from ai import askgpt, generate_cs_responses
 
 logger = logging.getLogger("bobbins")
 logger.setLevel(logging.INFO)
@@ -162,6 +162,19 @@ def upload_thumbnail(product_id: str, file: UploadFile):
 def ask(payload: Dict[Any, Any]):
     answer, log = askgpt(payload.get("question"), payload.get("log"))
     return dict(answer=answer, log=log)
+
+
+@fastapi_app.post("/cs-message")
+def cs_message(payload: Dict[Any, Any]):
+    message_text = payload.get("messageText")
+    if not message_text:
+        return JSONResponse(
+            status_code=400,
+            content=dict(message="messageText is required")
+        )
+    
+    response_options: List[str] = generate_cs_responses(message_text)
+    return dict(responseOptions=response_options)
 
 
 @fastapi_app.post("/products/{product_id}/transcribe")
