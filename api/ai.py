@@ -59,7 +59,7 @@ def generate_cs_responses(message_text: str) -> List[str]:
     refine_completion = client.beta.chat.completions.parse(
         model="gpt-4o",
         messages=[
-            {'role': 'assistant', 'content': initial_responses},
+            {'role': 'assistant', 'content': '\n\n'.join(initial_responses)},
             {
                 "role": "user", 
                 "content": CS_MESSAGE_REFINEMENT_INSTRUCTION
