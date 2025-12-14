@@ -114,6 +114,21 @@ const ask = (payload: { question: string; log?: ChatLogEntry[] }): Promise<{ ans
     return r.json();
   });
 
+const generateCsMessageResponses = (messageText: string): Promise<{ responseOptions: string[] }> =>
+  fetch("/api/cs-message", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ messageText }),
+  }).then((r) => {
+    if (!r.ok) {
+      throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+    }
+    return r.json();
+  });
+
 const generateWrittenInstructions = (productId: string): Promise<void> =>
   fetch(`/api/products/${productId}/transcribe`, {
     method: "POST",
@@ -150,6 +165,7 @@ export default {
   deleteProduct,
   uploadThumbnail,
   ask,
+  generateCsMessageResponses,
   generateWrittenInstructions,
   addWsListener,
   removeWsListener,
