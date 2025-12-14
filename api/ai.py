@@ -3,7 +3,7 @@ from typing import Literal, Tuple, TypedDict, List
 from pydantic import BaseModel
 
 from openai import OpenAI
-from prompts import CS_MESSAGE_GENERATION_PROMPT, CS_MESSAGE_REFINEMENT_INSTRUCTION
+from prompts import CS_MESSAGE_GENERATION_SYSTEM_INSTRUCTION
 
 
 class ChatMessage(TypedDict):
@@ -13,7 +13,7 @@ class ChatMessage(TypedDict):
 
 class CsMessageResponse(BaseModel):
     """Structured response for customer service messages"""
-    responses: List[str]
+    options: List[str]
 
 
 client = OpenAI(
@@ -39,34 +39,25 @@ def generate_cs_responses(message_text: str) -> List[str]:
     """Generate customer service response options using structured output"""
     assert message_text, "message_text cannot be blank"
     
-    prompt = CS_MESSAGE_GENERATION_PROMPT.format(message_text=message_text)
-    
     # First API call: Generate initial responses
-    completion = client.beta.chat.completions.parse(
+    response = client.responses.parse(
         model="gpt-4o",
-        messages=[
-            {"role": "user", "content": prompt}
-        ],
-        response_format=CsMessageResponse,
-    )
-    
-    parsed = completion.choices[0].message.parsed
-    initial_responses = parsed.responses if parsed else []
-    
-    if not initial_responses:
-        return []
-    
-    refine_completion = client.beta.chat.completions.parse(
-        model="gpt-4o",
-        messages=[
-            {'role': 'assistant', 'content': '\n\n'.join(initial_responses)},
+        input=[
             {
-                "role": "user", 
-                "content": CS_MESSAGE_REFINEMENT_INSTRUCTION
+                "role": "system",
+                "content": CS_MESSAGE_GENERATION_SYSTEM_INSTRUCTION,
+            },
+            {
+                "role": "user",
+                "content": message_text
             }
         ],
-        response_format=CsMessageResponse,
+        text_format=CsMessageResponse,
     )
+
+    responseOptions = response.output_parsed.options
     
-    refined_parsed = refine_completion.choices[0].message.parsed
-    return refined_parsed.responses if refined_parsed else initial_responses
+    if not responseOptions:
+        return []
+    
+    return responseOptions
